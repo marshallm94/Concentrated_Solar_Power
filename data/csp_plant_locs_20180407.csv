@@ -1,0 +1,30 @@
+Capacity Units,County,Developer,Gross Turbine Capacity,Owner,Start Year,Name,State,Status,Technology
+MW,San Bernardino,"Mojave Solar, LLC",250.0,"Mojave Solar, LLC","2,013",Abengoa Mojave Solar Project,CA,Under construction,Parabolic trough
+MW,,BrightSource Energy,200.0,,"2,014",BrightSource Coyote Springs 1 (PG&amp;E 3),NV,Under development,Power tower
+MW,,BrightSource Energy,200.0,,"2,015",BrightSource Coyote Springs 2 (PG&amp;E 4),NV,Under development,Power tower
+MW,,Xcel Energy,2.0,Xcel Energy,"2,010",Colorado Integrated Solar Project,CO,Operational,Parabolic trough
+MW,Nye,"SolarReserve's Tonopah Solar Energy, LLC",110.0,"SolarReserve's Tonopah Solar Energy, LLC (100%)","2,013",Crescent Dunes Solar Energy Project,NV,Under development,Power tower
+MW,Kern,eSolar,245.0,,"2,012",Gaskell Sun Tower,CA,Under development,Power tower
+MW,Riverside,"Genesis Solar, LLC",250.0,"Genesis Solar, LLC","2,014",Genesis Solar Energy Project,CA,Under development,Parabolic trough
+MW,San Bernardino,BrightSource Energy,392.0,,"2,013",Ivanpah Solar Electric Generating Station,CA,Under construction,Power tower
+MW,Kern,Ausra,5.0,Ausra (100%),"2,008",Kimberlina Solar Thermal Power Plant,CA,Operational,Linear Fresnel reflector
+MW,Maricopa,Tessera Solar,1.5,Tessera Solar,"2,010",Maricopa Solar Project,AZ,Operational,Dish/Engine
+MW,Martin,Florida Power & Light Co.,75.0,Florida Power & Light Co. (100%),"2,010",Martin Next Generation Solar Energy Center,FL,Operational,Parabolic trough
+MW,Clark,Acciona Solar Power,75.0,Acciona Energía (100%),"2,007",Nevada Solar One,NV,Operational,Parabolic trough
+MW,Kern,NextEra Energy,250.0,,"2,014",NextEra Beacon Solar Energy Project,CA,Under development,Parabolic trough
+MW,Riverside,"Solar Millennium, LLC",500.0,,"2,014",Palen Solar Power Project,CA,Under development,Parabolic trough
+MW,,"Inland Energy, Inc.",50.0,City of Palmdale,"2,013",Palmdale Hybrid Power Plant,CA,Under development,Parabolic trough
+MW,Riverside,"SolarReserve's Rice Solar Energy, LLC",150.0,"SolarReserve's Rice Solar Energy, LLC (100%)","2,013",Rice Solar Energy Project,CA,Under development,Power tower
+MW,Pinal County,Arizona Public Service,1.16,Arizona Public Service (100%),"2,006",Saguaro Power Plant,AZ,Operational,Parabolic trough
+MW,Los Angeles,eSolar,5.0,eSolar (100%),"2,009",Sierra SunTower,CA,Operational,Power tower
+MW,Maricopa,Abengoa Solar,280.0,Abengoa Solar (100%),"2,013",Solana Generating Station,AZ,Under construction,Parabolic trough
+MW,San Bernardino,Luz,13.8,Cogentrix  (100%),"1,984",Solar Electric Generating Station++1++ I,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,30.0,Cogentrix  (100%),"1,985",Solar Electric Generating Station++2++ II,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,30.0,NextEra (50%),"1,985",Solar Electric Generating Station++3++ III,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,30.0,NextEra (38%),"1,989",Solar Electric Generating Station++4++ IV,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,30.0,NextEra (46%),"1,989",Solar Electric Generating Station++5++ V,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,30.0,NextEra (41%),"1,989",Solar Electric Generating Station++6++ VI,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,30.0,NextEra (50%),"1,989",Solar Electric Generating Station++7++ VII,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,89.0,NextEra (50%),"1,989",Solar Electric Generating Station++8++ VIII,CA,Operational,Parabolic trough
+MW,San Bernardino,Luz,89.0,NextEra (50%),"1,990",Solar Electric Generating Station++9++ IX,CA,Operational,Parabolic trough
+MW,,"Inland Energy, Inc.",50.0,,"2,013",Victorville 2 Hybrid Power Plant,CA,Under development,Parabolic trough

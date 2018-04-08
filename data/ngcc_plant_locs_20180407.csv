@@ -1,0 +1,101 @@
+Site Name,Power Plant Type,Plant Status,State,Lat,Lon,Plant Owner,Plant Operator,Nameplate Capacity (MW),Planned Capacity (MW),Max Tower  Capacity (MWe),Max Trough Capacity (MWe),Solar-Augment Potential,Reason Not Considered
+Acadia Power Partners,Natural Gas Combined Cycle,Operating,LA,30.4284,-92.4112,Cleco Power LLC,Cleco Power LLC,"1,376",NA,0,0,Not Considered,Low Operation
+Afton,Natural Gas Combined Cycle,Operating,NM,32.1134,-106.848,Public Service Company of New Mexico,Public Service Company of New Mexico,287,NA,20.9,18.7,Excellent,
+Agnews Cogeneration,Natural Gas Combined Cycle,Operating,CA,37.2273,-121.6827,Calpine Corporation,"Calpine Agnews, Inc.",32,NA,0,0,Not Considered,No extra turbine space
+Agua Fria,Natural Gas Combined Cycle,Operating,AZ,33.5542,-112.2161,Salt River Project,Salt River Project,390.4,NA,0,0,Not Considered,Plant Too Old
+Agua Mansa,Natural Gas Combined Cycle,Planned,CA,34.0414,-117.3603,Colton City of,(blank),0,75.5,0,0,Not Considered,Need more info an extra turbine capacity
+Allen,Natural Gas Combined Cycle,Under Construction,NV,36.425,-114.9,Nevada Power Company,Nevada Power Company,0,576,42.6,38.4,Excellent,
+Amite South plant,Natural Gas Combined Cycle,Planned,LA,29.949803,-90.148745,"Entergy Services, Inc.",(blank),0,550,0,0,Not Considered,Need more info an extra turbine capacity
+Anadarko (OK),Natural Gas Combined Cycle,Operating,OK,35.0847,-98.23,Western Farmers Electric Cooperative Inc.,Western Farmers Electric Cooperative Inc.,315.3,NA,0,0,Not Considered,Plant Too Old
+Animas,Natural Gas Combined Cycle,Operating,NM,36.7251,-108.1919,Farmington City of NM,Farmington City of NM,24.6,NA,0,0,Not Considered,No extra turbine space
+Apache Station,Natural Gas Combined Cycle,Operating,AZ,32.0619,-109.8931,Arizona Electric Power Cooperative Inc.,"Arizona Electric Power Cooperative, Inc.",93.1,NA,0,0,Not Considered,Plant Too Old
+Apex Industrial Park,Natural Gas Combined Cycle,Operating,NV,36.4178,-114.9622,"Broadway Generating Company, LLC","Las Vegas Power Company, LLC",600.6,NA,75.2,63.8,Excellent,
+Arapahoe,Natural Gas Combined Cycle,Planned,CO,39.67,-105.0028,Public Service Company of Colorado,Public Service Company of Colorado,0,480,0,0,Not Considered,Low Land
+Arapahoe CC,Natural Gas Combined Cycle,Operating,CO,39.6692,-105.0018,Multi-Owned,(blank),193.9,NA,0,0,Not Considered,Low Land
+Arlington Valley Energy,Natural Gas Combined Cycle,Operating,AZ,33.3417,-112.8897,"LS Power Associates, LP","Arlington Valley, LLC",713,NA,96.5,80.7,Good,
+Arsenal Hill,Natural Gas Combined Cycle,Operating,LA,32.5181,-93.7611,Southwestern Electric Power Company,Southwestern Electric Power Company,508,NA,0,0,Not Considered,Need more info an extra turbine capacity
+Arvah B Hopkins,Natural Gas Combined Cycle,Operating,FL,30.4522,-84.4,Tallahassee City of,Tallahassee City of,446.75,NA,44.9,37.3,Fair,
+ASU Cogeneration Plant,Natural Gas Combined Cycle,Operating,AZ,32.228086,-110.954232,Arizona State University,Northwind Phoenix LLC,18,NA,0,0,Not Considered,No extra turbine space
+Attala Generating Plant,Natural Gas Combined Cycle,Operating,MS,33.0142,-89.6758,"Entergy Mississippi, Inc.","Entergy Mississippi, Inc.",500,NA,19.5,17.9,Fair,
+Auburndale Energy Center,Natural Gas Combined Cycle,Operating,FL,28.0534,-81.8059,"Auburndale Power Partners, Limited Partnership","Auburndale Power Partners, Limited Partnership",173.5,NA,0,0,Not Considered,No extra turbine space
+Autaugaville,Natural Gas Combined Cycle,Operating,AL,32.391885,-86.571064,Southern Power Company,Southern Power Company,"1,304",NA,177.2,147.2,Fair,
+Avenal,Natural Gas Combined Cycle,Planned,CA,36.00417,-120.1281,Macquarie Cook Power Inc.,Macquire Cook Power Inc.,0,600,87.7,73.2,Good,
+Barney M Davis,Natural Gas Combined Cycle,Operating,TX,27.6067,-97.3119,"Topaz Power Group, LLC","Topaz Power Group, LLC",731,NA,91.9,76.5,Good,
+Barry,Natural Gas Combined Cycle,Operating,AL,31.0069,-88.0103,Alabama Power Company,Alabama Power Company,"1,070.8",NA,48.9,44.6,Good,
+Bartow,Natural Gas Combined Cycle,Operating,FL,27.8613,-82.6012,Florida Power Corporation,Florida Power Corporation,"1,280",NA,0,0,Not Considered,Low Land
+Bastrop Energy Center,Natural Gas Combined Cycle,Operating,TX,30.1458,-97.55,"Centrica US Holdings, Inc.",Bastrop Enrgy Partners LP,727.8,NA,62,54.6,Fair,
+Batesville Generation Facility,Natural Gas Combined Cycle,Operating,MS,34.3345,-89.9272,Complete Energy Holdings LLC,LSP Energy Limited Partnership,891,NA,59.3,53.1,Fair,
+Baton Rouge Cogen,Natural Gas Combined Cycle,Operating,LA,30.4971,-91.1754,Exxon Mobil Corporation,Exxon Mobil Corporation,336.8,NA,0,0,Not Considered,No extra turbine space
+Baytown Power Plant,Natural Gas Combined Cycle,Operating,TX,29.7438,-94.6122,"Calpine Generating Company, LLC","Calpine Central, L.P.",914.6,NA,0,0,Not Considered,No extra turbine space
+Beaumont Refinery,Natural Gas Combined Cycle,Operating,TX,30.0639,-94.0703,Mobil Oil Corp,Mobil Oil Corp,677.8,NA,0,0,Not Considered,Plant Too Old
+Berkeley Cogeneration,Natural Gas Combined Cycle,Operating,CA,37.6427,-121.8743,"Olympus Power, LLC",General Electric Company,28.5,NA,0,0,Not Considered,No extra turbine space
+BHCI Facility,Natural Gas Combined Cycle,Planned,CO,38.266169,-104.613726,Black Hills Corporation,(blank),0,200,0,0,Not Considered,No extra turbine space
+Black Hills CC Plant,Natural Gas Combined Cycle,Planned,CO,38.266169,-104.613726,Black Hills Energy,(blank),0,380,0,0,Not Considered,Need more info an extra turbine capacity
+Black Mountain Plant,Natural Gas Combined Cycle,Operating,NV,36.2253,-114.8783,Multi-Owned,Nevada Cogeneration Assoc #2,96.3,NA,0,0,Not Considered,No extra turbine space
+Bluffview,Natural Gas Combined Cycle,Operating,NM,36.7164,-108.2153,Farmington City of NM,Farmington City of NM,67,NA,6.7,5.9,Good,
+Blythe Energy Power Plant,Natural Gas Combined Cycle,Operating,CA,33.6157,-114.6865,NextEra Energy Resources LLC,FPL Energy Operating Services Inc,591,NA,44.6,39.8,Excellent,
+Blythe Energy Power Plant,Natural Gas Combined Cycle,Planned,CA,33.6157,-114.6865,Caithness Energy LLC,California Institute of Technology,0,520,0,0,Not Considered,Need more info an extra turbine capacity
+Bosque County,Natural Gas Combined Cycle,Operating,TX,31.8594,-97.3586,Multi-Owned,"Wood Group Power Operations, Inc.",499,NA,17.7,15.8,Fair,
+Bowie Power Station,Natural Gas Combined Cycle,Planned,AZ,32.3225,-109.4872,Southwestern Power Group II LLC,(blank),0,"1,050",17.7,16.6,Excellent,
+BP Amoco Power Station 4,Natural Gas Combined Cycle,Operating,TX,29.3794,-94.9167,Multi-Owned,(blank),191.1,NA,0,0,Not Considered,No extra turbine space
+Brandy Branch,Natural Gas Combined Cycle,Operating,FL,30.3206,-81.9486,JEA,JEA,598.1,NA,42,37.5,Good,
+Brazos Valley Project,Natural Gas Combined Cycle,Operating,TX,29.4731,-95.6244,"Calpine Construction Finance Company, L.P.","Brazos Valley Energy, LP",675.6,NA,73.4,62.8,Good,
+Brush,Natural Gas Combined Cycle,Operating,CO,40.2403,-103.6225,Multi Owned,Brush Cogeneration Partners LP & Colorado Energy Management LLC,299.6,NA,32.3,27.2,Good,
+Buck (NC),Natural Gas Combined Cycle,Under Construction,NC,35.7133,-80.3767,"Duke Energy Carolinas, LLC","Duke Energy Carolinas, LLC",0,620,0,0,Not Considered,Need more info an extra turbine capacity
+Butler Warner,Natural Gas Combined Cycle,Operating,NC,35.0986,-78.8294,Fayetteville Public Works Comm,Fayetteville Public Works Comm,245.8,NA,0,0,Not Considered,Low Operation
+C D McIntosh Jr,Natural Gas Combined Cycle,Operating,FL,28.0809,-81.9256,Lakeland City of,Lakeland City of,369,NA,0,0,Not Considered,No extra turbine space
+C R Wing Cogeneration Plant,Natural Gas Combined Cycle,Operating,TX,32.2722,-101.4222,Multi-Owned,Power Resources Ltd,230,NA,0,0,Not Considered,No extra turbine space
+Caledonia Power Project,Natural Gas Combined Cycle,Operating,MS,33.6464,-88.2717,Tennessee Valley Authority,Tennessee Valley Authority,801,NA,74.1,64.5,Fair,
+California Institute of Technology,Natural Gas Combined Cycle,Operating,CA,34.3209,-118.2212,California Institute of Technology,California Institute of Technology,13,NA,0,0,Not Considered,No extra turbine space
+Camarillo,Natural Gas Combined Cycle,Operating,CA,34.4555,-119.0796,Multi-Owned,OLS Energy Camarillo,31.1,NA,0,0,Not Considered,No extra turbine space
+Campbell Soup Cogeneration,Natural Gas Combined Cycle,Operating,CA,38.511068,-121.471796,Sacramento Municipal Utility District,Sacramento Municipal Utility District,173.9,NA,0,0,Not Considered,Low Land
+Cane Island Power Park,Natural Gas Combined Cycle,Operating,FL,28.2764,-81.533,Multi-Owned,Kissimmee Utility Authority,370,NA,15.4,13.9,Good,
+Cane Island Power Park,Natural Gas Combined Cycle,Under Construction,FL,28.2764,-81.533,Florida Municipal Power Agency,Kissimmee Utility Authority,0,300,0,0,Not Considered,No extra turbine space
+Cape Canaveral,Natural Gas Combined Cycle,Planned,FL,28.4694,-80.7642,Florida Power & Light Corporation,Florida Power & Light Company,0,"1,355",0,0,Not Considered,Low Land
+Cardinal Cogen,Natural Gas Combined Cycle,Operating,CA,37.4296,-122.1759,General Electric Structured Finance,Cardinal Cogen,52.8,NA,0,0,Not Considered,No extra turbine space
+Carson Cogeneration,Natural Gas Combined Cycle,Operating,CA,33.8759,-118.2491,Multi-Owned,GE Energy,55.8,NA,0,0,Not Considered,No extra turbine space
+Carson Ice Cogen,Natural Gas Combined Cycle,Operating,CA,38.4461,-121.4614,Sacramento Municipal Utility District,Sacramento Municipal Utility District,71.5,NA,0,0,Not Considered,No extra turbine space
+Carville Energy Center,Natural Gas Combined Cycle,Operating,LA,30.2292,-91.065,"Calpine Generating Company, LLC",Carville Energy LLC,570,NA,0,0,Not Considered,Other
+Cedar Bayou 4,Natural Gas Combined Cycle,Operating,TX,29.7483,-94.9272,Multi-Owned,"NRG Cedar Bayou Development Company, LLC",535.5,NA,0,0,Not Considered,No extra turbine space
+Central Energy Plant,Natural Gas Combined Cycle,Operating,FL,28.4263,-81.5806,Reedy Creek Improvement District,Reedy Creek Improvement District,70,NA,0,0,Not Considered,Low Operation
+Channel Energy Center,Natural Gas Combined Cycle,Operating,TX,29.7189,-95.2319,"Calpine Generating Company, LLC","Channel Energy Center, LP",715,NA,0,0,Not Considered,Low DNI
+Channelview,Natural Gas Combined Cycle,Operating,TX,29.8356,-95.1242,Multi-Owned,"GIM Channelview Cogeneration, LLC",918.3,NA,0,0,Not Considered,Low DNI
+Chattahoochee Energy Facility,Natural Gas Combined Cycle,Operating,GA,33.407,-85.0387,Oglethorpe Power Corporation,Siemens Westinghouse Operating Services Company,539.7,NA,11.4,10.6,Fair,
+Cherokee County Cogeneration,Natural Gas Combined Cycle,Operating,SC,35.0727,-81.613,NextEra Energy Resources LLC,FPL Energy Operating Services Inc,101.2,NA,10.8,0,Fair,Trough results were poor
+Chino,Natural Gas Combined Cycle,Operating,CA,33.9961,-117.6726,Multi-Owned,OLS Energy,30.8,NA,0,0,Not Considered,No extra turbine space
+Chino Mines Company,Natural Gas Combined Cycle,Operating,NM,32.6956,-108.1225,Freeport-McMoRan Corporation,Freeport-McMoRan Corporation,54,NA,0,0,Not Considered,No extra turbine space
+"Choctaw Gas Generation, LLC",Natural Gas Combined Cycle,Operating,MS,33.3792,-89.2089,SUEZ Energy Generation NA,"RRI Energy Wholesale Generation, LLC",735.2,NA,11.3,10.6,Fair,
+Chouteau,Natural Gas Combined Cycle,Operating,OK,36.2206,-95.2756,Associated Electric Cooperative Inc.,Associated Electric Cooperative Inc.,532.9,NA,6.4,6,Fair,
+Chouteau,Natural Gas Combined Cycle,Under Construction,OK,36.2206,-95.2756,Associated Electric Cooperative Inc.,Associated Electric Cooperative Inc.,0,540,0,0,Fair,Need more info an extra turbine capacity
+Chuck Lenzie Generating Station,Natural Gas Combined Cycle,Operating,NV,36.3853,-114.9228,Nevada Power Company,Nevada Power Company,"1,465.6",NA,192.3,161,Excellent,
+Clark (NV),Natural Gas Combined Cycle,Operating,NV,36.0875,-115.0507,Nevada Power Company,Nevada Power Company,578.8,NA,11.8,10.9,Good,
+Clear Lake Power Plant,Natural Gas Combined Cycle,Operating,TX,29.6255,-95.067,Calpine Coporation,Calpine Coporation,465.2,NA,0,0,Not Considered,No extra turbine space
+Clearwater Cogeneration Project,Natural Gas Combined Cycle,Operating,CA,33.8912,-117.6085,"Corona, City of","Corona, City of",49,NA,0,0,Not Considered,No extra turbine space
+Cogen Lyondell,Natural Gas Combined Cycle,Operating,TX,29.8144,-95.1103,Multi-Owned,"Optim Energy, LLC",643.6,NA,0,0,Not Considered,Low DNI
+Cogeneration 1,Natural Gas Combined Cycle,Operating,AZ,32.105,-111.7931,University of Arizona,University of Arizona,9,NA,0,0,Not Considered,Need more info an extra turbine capacity
+Colorado Bend Energy Center,Natural Gas Combined Cycle,Operating w/ Planned Expansion,TX,29.2878,-96.0683,"Constellation Energy Group, Inc.",North American Energy Services,566.1,275,59.8,40.5,Fair,
+Columbia Energy Center,Natural Gas Combined Cycle,Operating,SC,33.8692,-81.0183,"Calpine Generating Company, LLC",Columbia Energy LLC,668.5,NA,0,0,Not Considered,Low Operation
+Colusa CC,Natural Gas Combined Cycle,Under Construction,CA,39.1019,-122.1113,Pacific Gas and Electric Company,Pacific Gas and Electric Company,0,666,88.7,74,Good,
+Comanche (OK),Natural Gas Combined Cycle,Operating,OK,34.5431,-98.3244,Public Service Company of Oklahoma,Public Service Company of Oklahoma,290,NA,0,0,Not Considered,Plant Too Old
+Continental Cogeneration,Natural Gas Combined Cycle,Planned,CA,37.1124,-120.9421,Continental Cogeneration Services,PurEnergy L.L.C.,0,275,0,0,Not Considered,Need more info an extra turbine capacity
+Cool Water,Natural Gas Combined Cycle,Operating,CA,34.8622,-116.854,"RRI Energy Power Generation, Inc.","RRI Energy Coolwater, Inc.",580,NA,0,0,Not Considered,Plant Too Old
+Corpus Christi Energy Center,Natural Gas Combined Cycle,Operating,TX,27.8139,-97.4283,"Calpine Generating Company, LLC",Corpus Christi Cogeneration L.P.,575.5,NA,5.4,5.1,Good,
+Cosumnes Power Plant,Natural Gas Combined Cycle,Operating,CA,38.3461,-121.1217,Sacramento Municipal Utility District,Sacramento Municipal Utility District,530,NA,20,18.4,Good,
+Cottonwood Energy,Natural Gas Combined Cycle,Operating,TX,30.2588,-93.7353,Cottonwood Energy Company L . P.,Cottonwood Energy Company L . P.,"1,336",NA,42.8,35.6,Good,
+CPV Vaca Station,Natural Gas Combined Cycle,Planned,CA,38.3989,-121.9239,"CPV Vacaville, LLC","CPV Vacaville, LLC",0,660,0,0,Not Considered,Need more info an extra turbine capacity
+Crist,Natural Gas Combined Cycle,Planned,FL,30.5661,-87.2289,Gulf Power Company,Gulf Power Company,0,600,0,0,Not Considered,Need more info an extra turbine capacity
+Crockett Cogeneration Project,Natural Gas Combined Cycle,Operating,CA,38.0569,-122.2161,Multi-Owned,(blank),247.4,NA,0,0,Not Considered,Need more info an extra turbine capacity
+Crosscut,Natural Gas Combined Cycle,Operating,AZ,33.44,-111.9442,Salt River Project,Salt River Project,30,NA,0,0,Not Considered,Plant Too Old
+Currant Creek,Natural Gas Combined Cycle,Operating,UT,39.8223,-111.894,PacifiCorp,PacifiCorp,566.9,NA,70.3,58.5,Good,
+DAI Oildale (DEXZEL),Natural Gas Combined Cycle,Operating,CA,35.3444,-118.7289,DAI Oildale Inc.,DAI Oildale Inc.,36,NA,0,0,Not Considered,No extra turbine space
+Dallas/Fort Worth Airport,Natural Gas Combined Cycle,Planned,TX,32.8967,-97.0406,Dallas/Fort Worth Airport,(blank),0,110,0,0,Not Considered,Need more info an extra turbine capacity
+Dan River,Natural Gas Combined Cycle,Planned,NC,36.4862,-79.7208,"Duke Energy Carolinas, LLC","Duke Energy Carolinas, LLC",0,620,0,0,Not Considered,Plant Too Old
+Decatur Energy Center (Solutia Cogen),Natural Gas Combined Cycle,Operating,AL,34.6292,-87.0214,"Calpine Generating Company, LLC",Calpine Eastern Corporation,711,NA,0,0,Not Considered,Low DNI
+Deer Park Energy Center,Natural Gas Combined Cycle,Operating,TX,29.7153,-95.1361,Deer Park Energy Center LLC,Deer Park Energy Center LLC,996,400,0,0,Not Considered,Low DNI
+Deer Park Energy Center,Natural Gas Combined Cycle,Planned,TX,29.7153,-95.1361,Deer Park Energy Center LLC,Deer Park Energy Center LLC,996,400,0,0,Not Considered,Low DNI
+Delta Energy Center,Natural Gas Combined Cycle,Operating,CA,38.0167,-121.8439,"Calpine Generating Company, LLC",Delta Energy Center LLC,943.5,NA,0,0,Not Considered,Low Land
+Desert Basin Generating,Natural Gas Combined Cycle,Operating,AZ,32.9042,-111.7889,Salt River Project,Salt River Project Agricultural Improvement & Power District,646.1,NA,82.8,70,Excellent,
+Desert Power LP,Natural Gas Combined Cycle,Under Construction,UT,40.666,-112.5273,Desert Power LP,Desert Power LP,0,125,0,0,Not Considered,Need more info an extra turbine capacity
+Dow Chemical Louisiana Operations,Natural Gas Combined Cycle,Operating,LA,30.3186,-91.2325,Dow Chemical Company,Dow Chemical Company,714.5,NA,0,0,Not Considered,Plant Too Old
+Dow Chemical Texas Operations,Natural Gas Combined Cycle,Operating,TX,28.99,-95.36,Dow Chemical Company,Dow Chemical Company,"1,010.6",NA,0,0,Not Considered,No extra turbine space
+Dow Freeport,Natural Gas Combined Cycle,Operating,TX,28.9433,-95.4584,Calpine Corporation,Dow Chemical Company,260,NA,0,0,Not Considered,No extra turbine space
