@@ -3,16 +3,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-def multi_class_scatter_plot(arr_1, arr_2, y):
-    import matplotlib.colors as colors
-    color_list = list(colors.cnames.keys())
+def multi_class_scatter_plot(arr_1, arr_2, y, color_list=False):
     classes = np.unique(y)
+    if color_list:
+        pass
+    if not color_list:
+        color_list = np.random.choice(list(colors.cnames.keys()), len(classes))
 
     fig, ax = plt.subplots(figsize=(8,6))
     for i in classes:
         color = np.random.choice(color_list)
         mask = y == i
-        ax.scatter(arr_col_idx_1[mask], arr_col_idx_2[mask], c=color, label=f"{i}")
+        ax.scatter(arr_1[mask], arr_2[mask], c=color, label=f"{i}")
 
     ax.legend()
     plt.show()
@@ -87,15 +89,15 @@ def count_nans(df, verbose=True):
 
 if __name__ == "__main__":
     # read data
-    csp_proj = pd.read_csv("data/csp_proj_20180404.csv", encoding='latin-1')
+    csp_proj = pd.read_csv("../data/csp_proj_20180404.csv", encoding='latin-1')
     # (160, 91)
-    pv_locs = pd.read_csv("data/pv_plant_locs_20180407.csv")
+    pv_locs = pd.read_csv("../data/pv_plant_locs_20180407.csv")
     # (100, 20)
-    coal_locs = pd.read_csv("data/coal_plant_locs_20180407.csv")
+    coal_locs = pd.read_csv("../data/coal_plant_locs_20180407.csv")
     # (100, 14)
-    csp_locs = pd.read_csv("data/csp_plant_locs_20180407.csv")
+    csp_locs = pd.read_csv("../data/csp_plant_locs_20180407.csv")
     # (29, 10)
-    ng_locs = pd.read_csv("data/ngcc_plant_locs_20180407.csv")
+    ng_locs = pd.read_csv("../data/ngcc_plant_locs_20180407.csv")
     # (100, 14)
 
     # exploration
@@ -110,18 +112,18 @@ if __name__ == "__main__":
     tech = np.array(csp_operational_tech.index)
     count = np.array([i for i in csp_operational_tech])
 
-    horizontal_bar_plot(tech, count, "Operation CSP Technologies", ['darkblue','mediumblue','lightblue'], "images/operational_csp_technologies.png")
+    horizontal_bar_plot(tech, count, "Operation CSP Technologies", ['darkblue','mediumblue','lightblue'], "../images/operational_csp_technologies.png")
 
     # under construction CSP projects
     csp_construction_tech = under_construction.groupby(['Technology']).count()['ProjectID']
     tech = np.array(csp_construction_tech.index)
     count = np.array([i for i in csp_construction_tech])
 
-    horizontal_bar_plot(tech, count, "CSP Technologies Under Construction", ['tomato','darkorange','orange'], "images/under_construction_csp_technologies.png")
+    horizontal_bar_plot(tech, count, "CSP Technologies Under Construction", ['tomato','darkorange','orange'], "../images/under_construction_csp_technologies.png")
 
     # under development CSP projects
     csp_under_dev_tech = under_dev.groupby(['Technology']).count()['ProjectID']
     tech = np.array(csp_under_dev_tech.index)
     count = np.array([i for i in csp_under_dev_tech])
 
-    horizontal_bar_plot(tech, count, "CSP Technologies Under Development", ['darkseagreen','seagreen','mediumseagreen','darkcyan', 'red'], "images/under_development_csp_technologies.png")
+    horizontal_bar_plot(tech, count, "CSP Technologies Under Development", ['darkseagreen','seagreen','mediumseagreen','darkcyan', 'red'], "../images/under_development_csp_technologies.png")
