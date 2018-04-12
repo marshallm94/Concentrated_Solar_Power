@@ -1,29 +1,32 @@
-## Solar Industry
+### Module 2 Capstone Proposal - Marshall McQuillen
 
-* Use google's geographical API to get latitude and longitude of Nan values in data set.
+#### The Question
 
-### For all solar power plant locations (preferably in world, will start with USA)...
+How accurately can Direct Normal Irradiance (DNI) be predicted at a granular level (30 minute intervals)?
+
+#### The Data
+
+NREL has an API where I can obtain DNI measurements in half hour intervals for a given latitude and longitude, for years dating back to ~2010. In addition, they have data on CSP and PV power plant locations in the United States, as well as other locations around the world (see MVP++).
+
+Most of the latitude and longitude values are populated, however there are a few missing values. Some of this information could be scraped from an accompanying webpage to where the data set is located, however if that doesn't work I plan on using [Google's Geolocation API](https://developers.google.com/maps/documentation/geolocation/intro) to supplement the existing data.
 
 ##### MVP
 
-Use weather (temp, cloud cover), time (30 min. intervals) and location (latitude, longitude, altitude) data to predict DNI.
+For all solar power plants in the USA...
 
-    * Compare all complex models (I want to train random forests, boosting and a regression Neural Network) against multiple linear regression
+Use weather data (temp, cloud cover, humidity, etc,), time (30 min. intervals) and location (latitude, longitude) data to predict DNI.
+
+* Compare all complex models (I want to train random forests, boosting and a regression Neural Network) against multiple linear regression
 
 ##### MVP+
 
-Forecast DNI X days out (with confidence intervals)
+Forecast DNI $X$ days out (with confidence intervals) for all locations in US
 
+##### MVP++
 
+* Do the above for solar power plants outside of the United States.
 
-* Find minimum DNI needed for plant to be viable running
-
-* Use NREL's API to plot DNI over time per location
-
-* Determine what time of day plant should "turn off"
-
-* use weather data to predict DNI with confidence
-
+A few barplots showing the current status of various Concentrated Solar Power projects...
 
 ![](images/operational_csp_technologies.png)
 
