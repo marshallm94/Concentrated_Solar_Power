@@ -90,15 +90,7 @@ def count_nans(df, verbose=True):
 if __name__ == "__main__":
     # read data
     csp_proj = pd.read_csv("../data/csp_proj_20180404.csv", encoding='latin-1')
-    # (160, 91)
-    pv_locs = pd.read_csv("../data/pv_plant_locs_20180407.csv")
-    # (100, 20)
-    coal_locs = pd.read_csv("../data/coal_plant_locs_20180407.csv")
-    # (100, 14)
     csp_locs = pd.read_csv("../data/csp_plant_locs_20180407.csv")
-    # (29, 10)
-    ng_locs = pd.read_csv("../data/ngcc_plant_locs_20180407.csv")
-    # (100, 14)
 
     # exploration
     csp_proj_nans = count_nans(csp_proj, verbose=False)
@@ -127,3 +119,5 @@ if __name__ == "__main__":
     count = np.array([i for i in csp_under_dev_tech])
 
     horizontal_bar_plot(tech, count, "CSP Technologies Under Development", ['darkseagreen','seagreen','mediumseagreen','darkcyan', 'red'], "../images/under_development_csp_technologies.png")
+
+    csp_proj[csp_proj["ShortName"] == "ISEGS"][["LatitudeDegrees",'LatitudeMinutes','LatitudeSeconds',"LongitudeDegrees",'LongitudeMinutes','LongitudeSeconds']]
