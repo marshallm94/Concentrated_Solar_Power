@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import os
 from datetime import datetime
+import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 def build_master_csv(root, filename):
     """
@@ -31,7 +33,7 @@ def build_master_csv(root, filename):
         if x == 0:
             df = pd.read_csv(current_file, header=None, names=col_names)
             df["Hour"] = df.index // 60
-            df['Minute'] = minute_array
+            df['Minute'] = minute_array[:df.shape[0]]
             df["Date"] = date
             df['final_date'] = df['Date'].astype(str) + " " + df['Hour'].astype(str) + ":" + df['Minute'].astype(str)
             df['final_date'] = pd.to_datetime(df['final_date'])
@@ -39,7 +41,7 @@ def build_master_csv(root, filename):
         else:
             current_df = pd.read_csv(current_file, header=None, names=col_names)
             current_df["Hour"] = current_df.index // 60
-            current_df['Minute'] = minute_array
+            current_df['Minute'] = minute_array[:current_df.shape[0]]
             current_df["Date"] = date
             current_df['final_date'] = current_df['Date'].astype(str) + " " + current_df['Hour'].astype(str) + ":" + current_df['Minute'].astype(str)
             current_df['final_date'] = pd.to_datetime(current_df['final_date'])
@@ -48,6 +50,7 @@ def build_master_csv(root, filename):
 
         print(f"Final DataFrame Shape: {df.shape}")
 
+    df.drop('Unnamed: 0', axis=1, inplace=True)
     df.to_csv(filename)
     print(f"\nAll files concatenated to one data object and saved to {filename}\nProcess Complete.")
 
@@ -76,65 +79,32 @@ def check_data_count(year_list, df):
     return out
 
 
-def make_dates(year_list, df):
-    """
-    Sets the index of df to be a datetime object
+def get_master_df(filename):
 
-    Parameters:
-        df: (pandas dataframe) Dataframe to be changed
-
-    Return:
-        updated_df: (pandas dataframe) Dataframe with datetime as index
-    """
-    year_day_list = check_data_count(year_list, df)
-
-    for pair in year_day_list:
-        for day in range(pair[1]):
-            mask = df['Year'] == pair[0]
-            mask2 = df['DOY'] == day
-            df[mask & mask2]['Hour'] = df[mask & mask2].reset_index().index // 60
-
-    # for year in year_list:
-    #     mask = df['Year'] == 2014
-    #     mask2 = df[mask]['DOY'] == 45
-    #
-    #     for day in days:
-    #         mask2 = df[mask]['DOY'] == 50
-    #         df['Hour'] = df[mask & mask2].reset_index().index // 60
-            # hours = df[mask & mask2].reset_index().index // 60
+    df = pd.read_csv(filename)
+    df['final_date'] = pd.to_datetime(df['final_date'])
+    df.set_index('final_date', inplace=True)
     return df
 
-            # for hour in np.unique(hours):
-            #     mask3 = np.where(hours == 12, True, False)
-            #     df[mask & mask2 & mask3]
-            #     minute_subset = minute_subset.reset_index()
-            #     minute_subset["Minute"] == minute_subset.index
 
+def plot_day(date, variable):
+    """
+    Parameters:
+        date: (str) The date to be plotted, in the format YYYY-MM-DD
+        variable: (str) The variable to be plotted across the day specified
+    """
+    subset = df[df['Date'] == date]
+    plt.plot(subset[variable])
+    plt.xticks(rotation=90)
+    plt.show()
 
-
-    # for year in year_list:
-    #     subset = df[df['Year'] == year]
-    #     days = np.unique(subset['DOY'])
-    #     for day in days:
-    #         nested_subset = subset[subset['DOY'] == day]
-    #         nested_subset = nested_subset.reset_index
-    #         nested_subset["Hour"] = nested_subset.index // 60
-    #         hours = np.unique(nested_subset['Hour'])
-    #         for hour in hours:
-    #             minute_subset = nested_subset[nested_subset['Hour'] == hour]
-    #             minute_subset = minute_subset.reset_index()
-    #             minute_subset["Minute"] == minute_subset.index
 
 if __name__ == "__main__":
 
-    df = build_master_csv("../data/solar_measurements/", "../data/ivanpah_measurements.csv")
+    build_master_csv("../data/solar_measurements/", "../data/ivanpah_measurements.csv")
 
-    # df = pd.read_csv("../data/ivanpah_measurements.csv")
-    #
-    # df.drop('Unnamed: 0.1', axis=1, inplace=True)
+    df = get_master_df("../data/ivanpah_measurements.csv")
 
-    # years = [2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018]
-    #
-    # year_days = check_data_count(years, df)
-    #
-    # df = make_dates(years, df)
+    df_06 = df[df['Year'] == 2006 & df['']]
+
+    plot_day('2006-12-31','Direct Normal [W/m^2]')
