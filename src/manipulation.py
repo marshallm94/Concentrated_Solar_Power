@@ -3,6 +3,7 @@ import numpy as np
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 plt.style.use('ggplot')
 
 def build_master_csv(root, filename):
@@ -55,66 +56,52 @@ def build_master_csv(root, filename):
     print(f"\nAll files concatenated to one data object and saved to {filename}\nProcess Complete.")
 
 
-def check_data_count(year_list, df):
-    """
-    Checks to ensure that every yeat in year_list has 355 or 366 days
-    and that every day has 1440 observations (1 observation per
-    minute)
-
-    Parameters:
-        year_list: (list) List of years (formatted as ints) to check
-        df: (pandas dataframe)
-        verbose: (boolean, default=True) Will print output if True
-
-    Returns:
-        list of tuples where the first element in the tuple is the year and the second element is the number of days in that year
-    """
-    out = []
-
-    for year in year_list:
-        subset = df[df["Year"] == year]
-        days = (subset.groupby("DOY").count() == 1440).sum()[0]
-        out.append((year, days))
-
-    return out
-
-
 def get_master_df(filename):
 
     df = pd.read_csv(filename)
     df['final_date'] = pd.to_datetime(df['final_date'])
-    df['Time'] = df['final_date'].hour + df['final_date'].minute
+    df["Time"] = df["Hour"].astype(str) + df["Minute"].astype(str)
+
     df.set_index('final_date', inplace=True, drop=False)
     return df
 
 
-def plot_day(date, hour_range, variable):
+def plot_day(date, hour_range, variables, df):
     """
     Plots the value of the variable specified on a given day within
-    a given range of time.
+    a given hour range.
 
 
     Parameters:
         date: (str) The date to be plotted, in the format YYYY-MM-DD
-        variable: (str) The variable to be plotted across the day specified
+        hour_range: (tuple) Tuple of integers for the start and stop hours during the day (in 24 hour format i.e. 11pm = 23)
+        variables: (list) list of variables to be plotted across the day specified
+        df: (DataFrame) Pandas DataFrame containing variables
+
+    Returns:
+        None
     """
     mask = df['Date'] == date
     mask2 = df['Hour'] >= hour_range[0]
     mask3 = df['Hour'] <= hour_range[1]
     subset = df[mask & mask2 & mask3]
-    plt.plot(subset['final_date'], subset[variable])
-    plt.xticks(rotation=75)
+    hours = mdates.HourLocator()
+    hour_formater = mdates.DateFormatter('%I')
+    fig, ax = plt.subplots()
+    for variable in variables:
+        ax.plot(subset[variable], label=variable)
+        ax.xaxis.set_major_locator(hours)
+        ax.xaxis.set_major_formatter(hour_formater)
+    plt.xlabel("Time of Day", fontweight="bold", fontsize=16)
+    plt.legend()
+    plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"))
     plt.show()
 
 
 if __name__ == "__main__":
 
-    build_master_csv("../data/solar_measurements/", "../data/ivanpah_measurements.csv")
+    # build_master_csv("../data/solar_measurements/", "../data/ivanpah_measurements.csv")
+    #
+    # df = get_master_df("../data/ivanpah_measurements.csv")
 
-    df = get_master_df("../data/ivanpah_measurements.csv")
-    #
-    # subset = df[df['Date'] == '2006-06-15']
-    #
-    # plot_day('2006-06-15',(4, 20), 'Direct Normal [W/m^2]')
-    #
-    # pd.to_datetime(subset['final_date'], format="%H:%M")
+    plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]'], df)
