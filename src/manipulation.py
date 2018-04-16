@@ -66,7 +66,7 @@ def get_master_df(filename):
     return df
 
 
-def plot_day(date, hour_range, variables, df):
+def plot_day(date, hour_range, variables, df, savefig=False):
     """
     Plots the value of the variable specified on a given day within
     a given hour range.
@@ -94,9 +94,10 @@ def plot_day(date, hour_range, variables, df):
         ax.xaxis.set_major_formatter(hour_formater)
     plt.xlabel("Time of Day", fontweight="bold", fontsize=16)
     plt.legend()
-    plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"))
+    plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"), fontweight='bold', fontsize=18)
     plt.show()
-
+    if savefig:
+        plt.savefig(savefig)
 
 if __name__ == "__main__":
 
@@ -104,4 +105,4 @@ if __name__ == "__main__":
     #
     # df = get_master_df("../data/ivanpah_measurements.csv")
 
-    plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]'], df)
+    plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]',], df)
