@@ -7,11 +7,28 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from manipulation import get_master_df
 
-def engineer_lagged_DNI_features(df):
+def engineer_lagged_DNI_features(num_lagged_features, df):
     """
-    Creates 15 new columns
+    Creates new variables that have the Direct Normal [W/m^2] value
+    from the time stamp X minutes ago.
+
+    Example:
+        The value of df[1, 'DNI_T_minus1'] will be equal to
+        df[0, 'Direct Normal [W/m^2]']. Similarly, the value of
+        df[2, 'DNI_T_minus2'] will be equal to the value of
+        df[0, 'Direct Normal [W/m^2]'].
+
+    Parameters:
+        num_lagged_features: (int) The number of minutes each
+                             observation should look back (will be
+                             the number of new columns created as
+                             well)
+        df: (pandas dataframe)
+
+    Return:
+        df: (pandas dataframe) df with additional columns.
     """
-    lagged_steps = np.arange(1, 16)
+    lagged_steps = np.arange(1, num_lagged_features + 1)
     feature_names = [f"DNI_T_minus{i}" for i in lagged_steps]
 
     for x, i in enumerate(lagged_steps):
@@ -26,10 +43,4 @@ if __name__ == "__main__":
 
     df = get_master_df("../data/ivanpah_measurements.csv")
 
-    mask = df["Year"] == 2017
-    mask2 = df['Date'] == "2017-07-04"
-    subset = df[mask & mask2]
-
-    test = engineer_lagged_DNI_features(subset)
-
-    test[['Direct Normal [W/m^2]','DNI_T_minus1','DNI_T_minus2','DNI_T_minus3']]
+    df = engineer_lagged_DNI_features(15, df)
