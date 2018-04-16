@@ -62,9 +62,8 @@ def get_master_df(filename):
 
     df = pd.read_csv(filename)
     df['final_date'] = pd.to_datetime(df['final_date'])
-    df["Time"] = df["Hour"].astype(str) + df["Minute"].astype(str)
-
     df.set_index('final_date', inplace=True, drop=False)
+    df["Month"] = df.index.month
     return df
 
 
@@ -88,15 +87,38 @@ def plot_day(date, hour_range, variables, df, savefig=False):
     mask3 = df['Hour'] <= hour_range[1]
     subset = df[mask & mask2 & mask3]
     hours = mdates.HourLocator()
-    hour_formater = mdates.DateFormatter('%I')
+    hour_formatter = mdates.DateFormatter('%I')
     fig, ax = plt.subplots()
     for variable in variables:
         ax.plot(subset[variable], label=variable)
         ax.xaxis.set_major_locator(hours)
-        ax.xaxis.set_major_formatter(hour_formater)
+        ax.xaxis.set_major_formatter(hour_formatter)
     plt.xlabel("Time of Day", fontweight="bold", fontsize=16)
     plt.legend()
     plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"), fontweight='bold', fontsize=18)
+    plt.show()
+    if savefig:
+        plt.savefig(savefig)
+
+
+def plot_aggregate_DNI(start_date, end_date, hour_range, groupby, variables, df, savefig=False):
+    mask = df['Date'] >= start_date
+    mask2 = df['Date'] <= end_date
+    day_subset = df[mask & mask2]
+    mask3 = df['Hour'] >= hour_range[0]
+    mask4 = df['Hour'] <= hour_range[1]
+    subset = day_subset[mask3 & mask4]
+    subset = subset.groupby(groupby).mean()[variables]
+    months = mdates.MonthLocator()
+    month_formatter = mdates.DateFormatter('%b')
+    fig, ax = plt.subplots()
+    for variable in variables:
+        ax.plot(subset[variable], '--go', label=variable)
+    plt.xlabel(groupby, fontweight="bold", fontsize=16)
+    plt.legend()
+    start_title = datetime.strptime(start_date, "%Y-%m-%d").strftime("%B, %Y")
+    end_title = datetime.strptime(end_date, "%Y-%m-%d").strftime("%B, %Y")
+    plt.suptitle(str(start_title + " to " + end_title), fontweight='bold', fontsize=18)
     plt.show()
     if savefig:
         plt.savefig(savefig)
@@ -132,9 +154,8 @@ if __name__ == "__main__":
     #
     # df = get_master_df("../data/ivanpah_measurements.csv")
 
-    plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]',], df)
-
-    correlation_df = df[['DOY','Direct Normal [W/m^2]',
+    correlation_df = df[['DOY',
+                         'Direct Normal [W/m^2]',
                          'Global Horiz [W/m^2]',
                          'Global UVA [W/m^2]',
                          'Global UVE [W/m^2]',
@@ -152,3 +173,7 @@ if __name__ == "__main__":
                          'Airmass']]
 
     heatmap(correlation_df, "../images/correlation_plot.png")
+
+    plot_aggregate_DNI('2017-01-01', '2017-12-31', (8, 14), 'Month', ['Direct Normal [W/m^2]'], df)
+
+    plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Zenith Angle [degrees]'], df)
