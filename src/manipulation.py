@@ -83,19 +83,27 @@ def get_master_df(filename):
 
     df = pd.read_csv(filename)
     df['final_date'] = pd.to_datetime(df['final_date'])
-    df.set_index('final_date', inplace=True)
+    df['Time'] = df['final_date'].hour + df['final_date'].minute
+    df.set_index('final_date', inplace=True, drop=False)
     return df
 
 
-def plot_day(date, variable):
+def plot_day(date, hour_range, variable):
     """
+    Plots the value of the variable specified on a given day within
+    a given range of time.
+
+
     Parameters:
         date: (str) The date to be plotted, in the format YYYY-MM-DD
         variable: (str) The variable to be plotted across the day specified
     """
-    subset = df[df['Date'] == date]
-    plt.plot(subset[variable])
-    plt.xticks(rotation=90)
+    mask = df['Date'] == date
+    mask2 = df['Hour'] >= hour_range[0]
+    mask3 = df['Hour'] <= hour_range[1]
+    subset = df[mask & mask2 & mask3]
+    plt.plot(subset['final_date'], subset[variable])
+    plt.xticks(rotation=75)
     plt.show()
 
 
@@ -104,7 +112,9 @@ if __name__ == "__main__":
     build_master_csv("../data/solar_measurements/", "../data/ivanpah_measurements.csv")
 
     df = get_master_df("../data/ivanpah_measurements.csv")
-
-    df_06 = df[df['Year'] == 2006 & df['']]
-
-    plot_day('2006-12-31','Direct Normal [W/m^2]')
+    #
+    # subset = df[df['Date'] == '2006-06-15']
+    #
+    # plot_day('2006-06-15',(4, 20), 'Direct Normal [W/m^2]')
+    #
+    # pd.to_datetime(subset['final_date'], format="%H:%M")
