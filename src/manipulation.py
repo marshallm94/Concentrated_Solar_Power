@@ -68,7 +68,7 @@ def get_master_df(filename):
     return df
 
 
-def plot_day(date, hour_range, variables, df, savefig=False):
+def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
     """
     Plots the value of the variable specified on a given day within
     a given hour range.
@@ -89,12 +89,14 @@ def plot_day(date, hour_range, variables, df, savefig=False):
     subset = df[mask & mask2 & mask3]
     hours = mdates.HourLocator()
     hour_formatter = mdates.DateFormatter('%I')
-    fig, ax = plt.subplots()
+    fig, ax = plt.subplots(figsize=(12,8))
     for variable in variables:
         ax.plot(subset[variable], label=variable)
         ax.xaxis.set_major_locator(hours)
         ax.xaxis.set_major_formatter(hour_formatter)
-    plt.xlabel("Time of Day", fontweight="bold", fontsize=16)
+    plt.xlabel(xlab, fontweight="bold", fontsize=16)
+    plt.ylabel(ylab, fontweight="bold", rotation=0, fontsize=16)
+    ax.yaxis.set_label_coords(-0.105,0.5)
     plt.legend()
     plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"), fontweight='bold', fontsize=18)
     plt.show()
@@ -115,7 +117,8 @@ def plot_daterange_DNI(start_date, end_date, hour_range, groupby, variables, yla
     for variable in variables:
         ax.plot(subset[variable], '-o', label=variable)
     plt.xlabel(groupby, fontweight="bold", fontsize=16)
-    plt.ylabel(ylab, fontweight="bold", fontsize=16)
+    plt.ylabel(ylab, fontweight="bold", rotation=0, fontsize=16)
+    ax.yaxis.set_label_coords(-0.105,0.5)
     plt.legend()
     start_title = datetime.strptime(start_date, "%Y-%m-%d").strftime("%B, %Y")
     end_title = datetime.strptime(end_date, "%Y-%m-%d").strftime("%B, %Y")
@@ -175,6 +178,8 @@ if __name__ == "__main__":
 
     heatmap(correlation_df, "../images/correlation_plot.png")
 
-    plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Hour', ['Direct Normal [W/m^2]', 'Zenith Angle [degrees]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], "Avg Across Days", df, "../images/avg_hourly_irradiance.png")
+plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Hour', ['Direct Normal [W/m^2]', 'Zenith Angle [degrees]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_hourly_irradiance.png")
 
-    plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Zenith Angle [degrees]'], df)
+plot_day('2017-07-05', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", df, "../images/irradiance_20170705.png")
+
+plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Month', ['Direct Normal [W/m^2]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_monthly_irradiance.png")
