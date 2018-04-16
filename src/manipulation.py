@@ -178,8 +178,8 @@ if __name__ == "__main__":
 
     heatmap(correlation_df, "../images/correlation_plot.png")
 
-plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Hour', ['Direct Normal [W/m^2]', 'Zenith Angle [degrees]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_hourly_irradiance.png")
+    plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Hour', ['Direct Normal [W/m^2]', 'Zenith Angle [degrees]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_hourly_irradiance.png")
 
-plot_day('2017-07-05', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", df, "../images/irradiance_20170705.png")
+    plot_day('2017-07-05', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", df, "../images/irradiance_20170705.png")
 
-plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Month', ['Direct Normal [W/m^2]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_monthly_irradiance.png")
+    plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Month', ['Direct Normal [W/m^2]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_monthly_irradiance.png")
