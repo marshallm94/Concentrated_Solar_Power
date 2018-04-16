@@ -59,6 +59,15 @@ def build_master_csv(root, filename):
 
 
 def get_master_df(filename):
+    """
+    Read in filename and sets index to datetime object
+
+    Parameters:
+        filename:(str) The path to the csv file
+
+    Returns:
+        df: (Pandas DataFrame)
+    """
 
     df = pd.read_csv(filename)
     df['final_date'] = pd.to_datetime(df['final_date'])
@@ -105,6 +114,29 @@ def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
 
 
 def plot_daterange_DNI(start_date, end_date, hour_range, groupby, variables, ylab, df, savefig=False):
+    """
+    Plots variables within a pandas dataframe against its index.
+    This was designed to work with the index set to be a datetime
+    type.
+
+    Parameters:
+        start_date: (str) The date for the beginning of the date
+                          range, in YYYY-MM-DD
+        end_date: (str) The date for the end of the date
+                          range, in YYYY-MM-DD
+        hour_range: (tuple) Constraints on the hours for the
+                            variables to be measured, in military
+                            time (i.e (4, 20) = 4:00 AM to 8:00 PM)
+        groupby: (str) The variable name to groupby
+        variables: (list) A list of strings of the variable names to
+                          be plotted (all on one figure)
+        ylab: (str) Y axis label
+        df: (pandas dataframe)
+        savefig: (boolean/str) Won't save the figure if set to False (default), if saving figure is desired, put a string corresponding to the filename
+
+    Return:
+        None
+    """
     mask = df['Date'] >= start_date
     mask2 = df['Date'] <= end_date
     day_subset = df[mask & mask2]
