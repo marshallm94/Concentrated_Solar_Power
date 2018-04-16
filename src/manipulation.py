@@ -51,7 +51,7 @@ def check_data_count(year_list, df, verbose=True):
         print("\n\n", str(year), "\n\n")
         print((subset.groupby("DOY").count() == 1440).sum())
 
-def make_dates(df):
+def make_dates(year_list, df):
     """
     Sets the index of df to be a datetime object
 
@@ -61,9 +61,39 @@ def make_dates(df):
     Return:
         updated_df: (pandas dataframe) Dataframe with datetime as index
     """
+    for year in year_list:
+        mask = df['Year'] == 2014
+        days = np.unique(df[mask]['DOY'])
+        for day in days:
+            mask2 = df[mask]['DOY'] == 45
+            hours = df[mask & mask2].reset_index().index // 60
+            for hour in np.unique(hours):
+                np.where(hours == hour, True, False)
+                mask3 = df[mask & mask2]['']
+                minute_subset = minute_subset.reset_index()
+                minute_subset["Minute"] == minute_subset.index
+
+
+
+    for year in year_list:
+        subset = df[df['Year'] == year]
+        days = np.unique(subset['DOY'])
+        for day in days:
+            nested_subset = subset[subset['DOY'] == day]
+            nested_subset = nested_subset.reset_index
+            nested_subset["Hour"] = nested_subset.index // 60
+            hours = np.unique(nested_subset['Hour'])
+            for hour in hours:
+                minute_subset = nested_subset[nested_subset['Hour'] == hour]
+                minute_subset = minute_subset.reset_index()
+                minute_subset["Minute"] == minute_subset.index
+
+
     df["string_DOY"] = df["Year"].astype(str) + " " +  df["DOY"].astype(str)
-    date = datetime.strptime(df.loc[0,"string_DOY"], "%Y %j")
-    df.loc[0, "Date"] = date.strftime("%m-%d-%Y")
+    df["Date"] = pd.to_datetime(df["string_DOY"], format="%Y %j")
+    hour = 0
+
+
 
     return df
 
