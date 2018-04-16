@@ -64,6 +64,7 @@ def get_master_df(filename):
     df['final_date'] = pd.to_datetime(df['final_date'])
     df.set_index('final_date', inplace=True, drop=False)
     df["Month"] = df.index.month
+    df["Year"]
     return df
 
 
@@ -101,7 +102,7 @@ def plot_day(date, hour_range, variables, df, savefig=False):
         plt.savefig(savefig)
 
 
-def plot_aggregate_DNI(start_date, end_date, hour_range, groupby, variables, df, savefig=False):
+def plot_daterange_DNI(start_date, end_date, hour_range, groupby, variables, ylab, df, savefig=False):
     mask = df['Date'] >= start_date
     mask2 = df['Date'] <= end_date
     day_subset = df[mask & mask2]
@@ -109,12 +110,12 @@ def plot_aggregate_DNI(start_date, end_date, hour_range, groupby, variables, df,
     mask4 = df['Hour'] <= hour_range[1]
     subset = day_subset[mask3 & mask4]
     subset = subset.groupby(groupby).mean()[variables]
-    months = mdates.MonthLocator()
-    month_formatter = mdates.DateFormatter('%b')
-    fig, ax = plt.subplots()
+    hours = mdates.HourLocator()
+    fig, ax = plt.subplots(figsize=(12,8))
     for variable in variables:
-        ax.plot(subset[variable], '--go', label=variable)
+        ax.plot(subset[variable], '-o', label=variable)
     plt.xlabel(groupby, fontweight="bold", fontsize=16)
+    plt.ylabel(ylab, fontweight="bold", fontsize=16)
     plt.legend()
     start_title = datetime.strptime(start_date, "%Y-%m-%d").strftime("%B, %Y")
     end_title = datetime.strptime(end_date, "%Y-%m-%d").strftime("%B, %Y")
@@ -174,6 +175,6 @@ if __name__ == "__main__":
 
     heatmap(correlation_df, "../images/correlation_plot.png")
 
-    plot_aggregate_DNI('2017-01-01', '2017-12-31', (8, 14), 'Month', ['Direct Normal [W/m^2]'], df)
+    plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Hour', ['Direct Normal [W/m^2]', 'Zenith Angle [degrees]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], "Avg Across Days", df, "../images/avg_hourly_irradiance.png")
 
     plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Zenith Angle [degrees]'], df)
