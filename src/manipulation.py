@@ -22,7 +22,8 @@ def build_master_csv(root, filename):
 
     minutes = np.arange(60)
     minute_array = np.array([np.copy(minutes) for i in range(24)]).ravel()
-    for x, small_file in enumerate(all_files[:1]):
+
+    for x, small_file in enumerate(all_files):
         current_file = root + small_file
         date = small_file[:-4]
         year, month, day = date[:4], date[4:6], date[6:]
@@ -32,17 +33,21 @@ def build_master_csv(root, filename):
             df["Hour"] = df.index // 60
             df['Minute'] = minute_array
             df["Date"] = date
+            df['final_date'] = df['Date'].astype(str) + " " + df['Hour'].astype(str) + ":" + df['Minute'].astype(str)
+            df['final_date'] = pd.to_datetime(df['final_date'])
+            df.set_index('final_date', inplace=True)
         else:
             current_df = pd.read_csv(current_file, header=None, names=col_names)
             current_df["Hour"] = current_df.index // 60
-            curren_df['Minute'] = minute_array
+            current_df['Minute'] = minute_array
             current_df["Date"] = date
+            current_df['final_date'] = current_df['Date'].astype(str) + " " + current_df['Hour'].astype(str) + ":" + current_df['Minute'].astype(str)
+            current_df['final_date'] = pd.to_datetime(current_df['final_date'])
+            current_df.set_index('final_date', inplace=True)
             df = pd.concat([df, current_df], axis=0)
 
-        print(df.head())
         print(f"Final DataFrame Shape: {df.shape}")
 
-    return df
     df.to_csv(filename)
     print(f"\nAll files concatenated to one data object and saved to {filename}\nProcess Complete.")
 
