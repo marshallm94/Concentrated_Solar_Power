@@ -3,7 +3,9 @@ import numpy as np
 import os
 from datetime import datetime
 import matplotlib.pyplot as plt
+import seaborn as sns
 import matplotlib.dates as mdates
+from pandas.plotting import scatter_matrix
 plt.style.use('ggplot')
 
 def build_master_csv(root, filename):
@@ -99,6 +101,31 @@ def plot_day(date, hour_range, variables, df, savefig=False):
     if savefig:
         plt.savefig(savefig)
 
+
+def heatmap(df, filename=False):
+    """
+    Creates a heatmap of the correlation matrix of df (Pandas DataFrame).
+    Inputs:
+        df: (Pandas DataFrame)
+        filename: (str) - the path to which you would like to save the image.
+    Output:
+        None (displays figure and saves image)
+    """
+    corr = df.corr()
+    ylabels = ["{} = {}".format(col, x + 1) for x, col in enumerate(list(corr.columns))]
+    xlabels = [str(x + 1) for x in range(len(ylabels))]
+    mask = np.zeros_like(corr, dtype=np.bool)
+    mask[np.triu_indices_from(mask)] = True
+    f, ax = plt.subplots(figsize=(11, 6))
+    cmap = sns.diverging_palette(220, 10, as_cmap=True)
+    sns.heatmap(corr, mask=mask, cmap=cmap, xticklabels=xlabels, yticklabels=ylabels, vmax=0.3, center=0, square=True, linewidths=0.5, cbar_kws={"shrink": 0.5})
+    plt.yticks(rotation=0)
+    plt.xticks(rotation=0)
+    plt.suptitle("Correlation Between Attributes", fontweight="bold", fontsize=16)
+    if filename:
+        plt.savefig(filename, orientation='landscape')
+
+
 if __name__ == "__main__":
 
     # build_master_csv("../data/solar_measurements/", "../data/ivanpah_measurements.csv")
@@ -106,3 +133,22 @@ if __name__ == "__main__":
     # df = get_master_df("../data/ivanpah_measurements.csv")
 
     plot_day('2006-06-15', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]',], df)
+
+    correlation_df = df[['DOY','Direct Normal [W/m^2]',
+                         'Global Horiz [W/m^2]',
+                         'Global UVA [W/m^2]',
+                         'Global UVE [W/m^2]',
+                         'Dry Bulb Temp [deg C]',
+                         'Avg Wind Speed @ 30ft [m/s]',
+                         'Avg Wind Direction @ 30ft [deg from N]',
+                         'Peak Wind Speed @ 30ft [m/s]',
+                         'UVSAET Temp [deg C]',
+                         'Logger Temp [deg C]',
+                         'Logger Battery [VDC]',
+                         'Wind Chill Temp [deg C]',
+                         'Diffuse Horiz (calc) [W/m^2]',
+                         'Zenith Angle [degrees]',
+                         'Azimuth Angle [degrees]',
+                         'Airmass']]
+
+    heatmap(correlation_df, "../images/correlation_plot.png")
