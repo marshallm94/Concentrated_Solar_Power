@@ -36,11 +36,60 @@ def engineer_lagged_DNI_features(num_lagged_features, df):
         values = np.insert(base, np.repeat(0,i), np.repeat(0,i))
         df[feature_names[x]] = values[:-i]
 
-    return df
+    return df[num_lagged_features:]
 
+
+def create_day_subset(date, df):
+    """
+    Creates a subset of df where only dates equal to date are included
+
+    Parameters:
+        date: (str) The date for the beginning of the date range,
+                    in YYYY-MM-DD
+        df: (pandas dataframe)
+
+    Returns:
+        df: (pandas dataframe) A subset of df
+    """
+    out = df[df['Date'] == date]
+
+    y = out.pop('Direct Normal [W/m^2]').values
+
+    X = out[['Year',
+            'Month',
+            'DOY',
+            'Hour',
+            'Minute',
+            'DNI_T_minus1',
+            'DNI_T_minus2',
+            'DNI_T_minus3',
+            'DNI_T_minus4',
+            'DNI_T_minus5',
+            'DNI_T_minus6',
+            'DNI_T_minus7',
+            'DNI_T_minus8',
+            'DNI_T_minus9',
+            'DNI_T_minus10',
+            'DNI_T_minus11',
+            'DNI_T_minus12',
+            'DNI_T_minus13',
+            'DNI_T_minus14',
+            'DNI_T_minus15']].values
+
+    return X, y
 
 if __name__ == "__main__":
 
-    df = get_master_df("../data/ivanpah_measurements.csv")
+    # df = get_master_df("../data/ivanpah_measurements.csv")
+    #
+    # df = engineer_lagged_DNI_features(15, df)
+    # df.to_csv("../data/ivanpah_measurements_modeling.csv")
 
-    df = engineer_lagged_DNI_features(15, df)
+    df = pd.read_csv("../data/ivanpah_measurements_modeling.csv")
+
+    X, y = create_day_subset('2007-07-04', df)
+
+    rf = RandomForestRegressor()
+    rf.fit(X, y)
+    y_hat = rf.predict(X)
+    print(np.sqrt(mean_squared_error(y_hat, y)))
