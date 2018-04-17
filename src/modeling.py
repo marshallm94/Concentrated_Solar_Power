@@ -36,7 +36,12 @@ def engineer_lagged_DNI_features(num_lagged_features, df):
         values = np.insert(base, np.repeat(0,i), np.repeat(0,i))
         df[feature_names[x]] = values[:-i]
 
-    return df[num_lagged_features:]
+    dni_copy = df['Direct Normal [W/m^2]'].copy().values
+    target = np.insert(dni_copy, np.repeat(dni_copy.shape[0], num_lagged_features), np.repeat(0, num_lagged_features))
+    print(dni_copy[-15:], target[-15:])
+    df[f'DNI_T_plus{num_lagged_features}'] = target[num_lagged_features:]
+
+    return df
 
 
 def create_day_subset(date, df):
@@ -80,16 +85,20 @@ def create_day_subset(date, df):
 
 if __name__ == "__main__":
 
-    # df = get_master_df("../data/ivanpah_measurements.csv")
-    #
-    # df = engineer_lagged_DNI_features(15, df)
+    df = get_master_df("../data/ivanpah_measurements.csv")
+
+    subset = df[df['Date'] == '2007-07-04']
+
+    test = engineer_lagged_DNI_features(15, subset)
+
+    (test['Direct Normal [W/m^2]'] == test['DNI_T_plus15']).sum()
     # df.to_csv("../data/ivanpah_measurements_modeling.csv")
-
-    df = pd.read_csv("../data/ivanpah_measurements_modeling.csv")
-
-    X, y = create_day_subset('2007-07-04', df)
-
-    rf = RandomForestRegressor()
-    rf.fit(X, y)
-    y_hat = rf.predict(X)
-    print(np.sqrt(mean_squared_error(y_hat, y)))
+    #
+    # df = pd.read_csv("../data/ivanpah_measurements_modeling.csv")
+    #
+    # X, y = create_day_subset('2007-07-04', df)
+    #
+    # rf = RandomForestRegressor()
+    # rf.fit(X, y)
+    # y_hat = rf.predict(X)
+    # print(np.sqrt(mean_squared_error(y_hat, y)))
