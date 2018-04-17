@@ -44,7 +44,7 @@ def engineer_lagged_DNI_features(num_lagged_features, df):
     return df
 
 
-def create_day_subset(date, df):
+def create_X_y(df):
     """
     Creates a subset of df where only dates equal to date are included
 
@@ -56,11 +56,10 @@ def create_day_subset(date, df):
     Returns:
         df: (pandas dataframe) A subset of df
     """
-    out = df[df['Date'] == date]
 
-    y = out.pop('DNI_T_plus15').values
+    y = df.pop('DNI_T_plus15').values
 
-    X = out[['Year',
+    X = df[['Year',
             'Month',
             'DOY',
             'Hour',
@@ -85,28 +84,43 @@ def create_day_subset(date, df):
     return X, y
 
 
-def cross_validate(model, num_days, df):
+def cross_validate(model, cv_iter, df):
     """
 
 
     """
     days = np.unique(df['Date'])
-    CV_subset = np.random.choice(days, num_days)
+    CV_subset = np.random.choice(days, cv_iter)
 
-    day_rmses = []
+    rmses = []
     for day in CV_subset:
-        next_day = pd.to_datetime(day) + pd.Timedelta("1 years")
-        test_day = datetime.datetime.strftime(next_day, "%Y-%m-%d")
-        print(day, test_day)
-        x_train, y_train = create_day_subset(day, df)
-        x_test, y_test = create_day_subset(test_day, df)
+        # cross validation training set
+        train_start = pd.to_datetime(day) + pd.Timedelta("-90 days")
+        train_end = pd.to_datetime(day)
+        mask1 = df['final_date'] >= pd.to_datetime(train_start)
+        mask2 = df['final_date'] < pd.to_datetime(train_end)
+        x_train, y_train = create_X_y(df[mask1 & mask2])
+
+        # cross_validation testing set
+        test_end = pd.to_datetime(day) + pd.Timedelta("+31 days")
+        test_start = pd.to_datetime(day) + pd.Timedelta("+1 days")
+        mask3 = df['final_date'] >= pd.to_datetime(test_start)
+        mask4 = df['final_date'] < pd.to_datetime(test_end)
+        x_test, y_test = create_X_y(df[mask3 & mask4])
 
         model.fit(x_train, y_train)
-        y_hat = rf.predict(x_test)
-        day_rmses.append((day, test_day, np.sqrt(mean_squared_error(y_hat, y_test))))
+        y_hat = model.predict(x_test)
         print("Test RMSE: {}".format(np.sqrt(mean_squared_error(y_hat, y_test))))
+        rmses.append(np.sqrt(mean_squared_error(y_hat, y_test)))
 
-    return day_rmses
+    print("Average RMSE over {} splits: {}".format(cv_iter, np.mean(rmses)))
+
+    return rmses
+
+
+
+
+
 
 
 if __name__ == "__main__":
@@ -122,26 +136,8 @@ if __name__ == "__main__":
     train = df[df['Year'] < 2017]
     test = df[df['Year'] >= 2017]
 
-
-    num_days = 10
-    days = np.unique(df['Date'])
-    CV_subset = np.random.choice(days, num_days)
-
-    day_rmses = []
-    for day in CV_subset:
-        train_start = pd.to_datetime(day) + pd.Timedelta("-90 days")
-        train_end = pd.to_datetime(day)
-        mask1 = df['final_date'] >= pd.to_datetime(train_start)
-        mask2 = df['final_date'] < pd.to_datetime(train_end)
-        print(df[mask1 & mask2].shape)
-
-
-        print(day, train_start)
-        year = int(np.random.choice(df[mask].index.year, 1))
-        month = int(np.random.choice(df[mask].index.month, 1))
-        day_n = int(np.random.choice(df[mask].index.day, 1))
-        print(day, day_n, month, year)
-
-
     rf = RandomForestRegressor()
-    test = cross_validate(rf, 10, df)
+    cv_errors = cross_validate(rf, 25, train)
+
+    # Persistence Model
+    np.mean(np.sqrt(mean_squared_error(train['DNI_T_plus15'].values, train['Direct Normal [W/m^2]'].values)))
