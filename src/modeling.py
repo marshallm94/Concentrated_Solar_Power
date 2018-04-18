@@ -211,9 +211,7 @@ def build_neural_network(x_train, y_train):
                     kernel_initializer='uniform',
                     activation='relu'))
 
-    model.add(Dense(units=1,
-                    kernel_initializer='uniform',
-                    activation='relu'))
+    model.add(Dense(output_dim=1))
 
     model.compile(optimizer='rmsprop',
                   loss='mse')
@@ -323,14 +321,33 @@ if __name__ == "__main__":
 ############################### NEURAL NETWORK #################################
 ################################################################################
 
-    mask = train['Date'] == '2009-07-09'
+    train_mask = train['Date'] == '2009-07-09'
 
-    x_train = train[mask][columns].values
-    y_train = train[mask]['DNI_T_plus15'].values
+    x_train = train[train_mask][columns].values
+    y_train = train[train_mask]['DNI_T_plus15'].values
+
+    test_mask = train['Date'] == '2009-07-10'
+
+    x_test = train[test_mask][columns].values
+    y_test = train[test_mask]['DNI_T_plus15'].values
 
     model = build_neural_network(x_train, y_train)
 
-    epochs = 3
+    epochs = 50
     batch_size = 1
+    shuffle = True
+    validation_split = 0.2
 
-    model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, verbose=1)
+    model.fit(x_train,
+              y_train,
+              epochs=epochs,
+              batch_size=batch_size,
+              shuffle=shuffle,
+              validation_split=validation_split,
+              verbose=1)
+
+    y_hat = model.predict(x_test)
+
+    test_rmse = np.sqrt(mean_squared_error(y_test, y_hat))
+
+    print(f"MLP Testing Error: {test_rmse}")
