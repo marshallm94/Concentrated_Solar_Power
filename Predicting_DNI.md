@@ -23,7 +23,7 @@ While there are a number of features that could provide additional predictive po
 
 ### The Problem
 
-Knowing how much energy a plant will be able to produce is clearly highly dependent on the amount of DNI (measured in $\frac{Watts}{Meter^2}$ here) the heliostats receive, which, as we will see below, is highly irregular.
+Knowing how much energy a plant will be able to produce is clearly highly dependent on the amount of DNI (measured in Watts per Meter Squared here) the heliostats receive, which, as we will see below, is highly irregular.
 
 The goal of this analysis will be to see how accurately different models are able to predict DNI 15 minutes into the future from any given minute during the day.
 
@@ -66,7 +66,7 @@ In addition to creating my target variables as shown above, for each observation
 
 According to a [2013 article ](https://ac-els-cdn-com.www2.lib.ku.edu/S1364032113004334/1-s2.0-S1364032113004334-main.pdf?_tid=41f83cfe-de21-4d94-803f-a7470d8e51df&acdnat=1523992118_8198b37af15a4d0e24f139dfcd721a9d) that reviewed the current statistical models used to predict global irradiance, the benchmark model, called the *Persistence Model*, predicts that irradiance at time step $t$ is equal to irradiance at time step $t-1$. That is to say,
 
-$$\hat{y_{t}} = y_{t-1}$$
+![](images/persistence_model_formula.png)
 
 I decided to use a Random Forest Regressor as my base model to compare against this benchmark. Using Scikit-Learn defaults, the errors for the Random Forest Regressor as well as the Persistence Model are show below. The Random Forest was trained over a 90 day period and then tested on the 30 days immediately thereafter.
 
