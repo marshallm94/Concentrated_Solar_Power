@@ -46,10 +46,23 @@ The goal of this analysis will be to see how accurately different models are abl
 | 2015-06-11 11:20:00 | **893.600** | 896.846
 | 2015-06-11 11:21:00 | **895.570** | 898.221
 
-### The Benchmark
+### My Base Model vs The Benchmark
 
 According to a [2013 article ](https://ac-els-cdn-com.www2.lib.ku.edu/S1364032113004334/1-s2.0-S1364032113004334-main.pdf?_tid=41f83cfe-de21-4d94-803f-a7470d8e51df&acdnat=1523992118_8198b37af15a4d0e24f139dfcd721a9d) that reviewed the current statistical models used to predict global irradiance, the benchmark model, called the *Persistence Model*, predicts that irradiance at time step $t$ is equal to irradiance at time step $t-1$. That is to say,
 
 $$\hat{y_{t}} = y_{t-1}$$
+
+| Train Start  | Train End | Test Start | Test End | Test RMSE |
+| ------------- | ------------- | ------------- | ------------- | ------------- |
+| 2015-07-23 | 2015-10-21 | 2015-10-22 | 2015-11-21 | 160.946492
+| 2014-06-21 | 2014-09-19 | 2014-09-20 | 2014-10-20 | 114.987135
+| 2016-06-02 | 2016-08-31 | 2016-09-01 | 2016-10-01 | 98.157692
+| 2006-10-30 | 2007-01-28 | 2007-01-29 | 2007-02-28 | 128.163194
+| 2015-05-01 | 2015-07-30 | 2015-07-31 | 2015-08-30 | 113.429020
+| 2009-02-07 | 2009-05-08 | 2009-05-09 | 2009-06-08 | 123.809996
+| 2015-09-09 | 2015-12-08 | 2015-12-09 | 2016-01-08 | 123.123308
+| 2006-09-01 | 2006-11-30 | 2006-12-01 | 2006-12-31 | 131.964992
+| 2012-09-11 | 2012-12-10 | 2012-12-11 | 2013-01-10 | 137.424349
+| 2008-09-12 | 2008-12-11 | 2008-12-12 | 2009-01-11 | 120.205489
 
 A MLP was developed to predict irradiance 24 hours in advance for PV plant in Italy ([article](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)). This MLP accepted as input mean daily irradiance and mean daily air temperature, which resulted in a "...correlation coefficient of more than 98% for sunny days and slightly less than 95% for cloudy days."[$^{[1]}$](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
