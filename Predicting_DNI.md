@@ -27,9 +27,28 @@ The goal of this analysis will be to see how accurately different models are abl
 
 ![](images/irradiance_20170705.png)
 
+### Data Preview
+
+| Time Stamp  | DNI | DNI 15 Minutes from Now
+| ------------- | ------------- | ------------- |
+| 2015-06-11 11:00:00 | 889.945 | **892.412**
+| 2015-06-11 11:01:00 | 891.852 | **892.833**
+| 2015-06-11 11:02:00 | 893.199 | **893.499**
+| 2015-06-11 11:03:00 | 892.430 | **892.421**
+| 2015-06-11 11:04:00 | 890.426 | **892.787**
+| 2015-06-11 11:05:00 | 890.070 | **893.600**
+| 2015-06-11 11:06:00 | 890.360 | **895.570**
+| 2015-06-11 11:15:00 | **892.412** | 896.047
+| 2015-06-11 11:16:00 | **892.833** | 898.870
+| 2015-06-11 11:17:00 | **893.499** | 900.519
+| 2015-06-11 11:18:00 | **892.421** | 901.682
+| 2015-06-11 11:19:00 | **892.787** | 898.668
+| 2015-06-11 11:20:00 | **893.600** | 896.846
+| 2015-06-11 11:21:00 | **895.570** | 898.221
+
 ### The Benchmark
 
-According to a [2013 article ](https://ac-els-cdn-com.www2.lib.ku.edu/S1364032113004334/1-s2.0-S1364032113004334-main.pdf?_tid=41f83cfe-de21-4d94-803f-a7470d8e51df&acdnat=1523992118_8198b37af15a4d0e24f139dfcd721a9d) that reviewed the current statistical model used to predict global irradiance, the benchmark model, called the *Persistence Model*, predicts that irradiance at time step $t$ is equal to irradiance at time step $t-1$. That is to say,
+According to a [2013 article ](https://ac-els-cdn-com.www2.lib.ku.edu/S1364032113004334/1-s2.0-S1364032113004334-main.pdf?_tid=41f83cfe-de21-4d94-803f-a7470d8e51df&acdnat=1523992118_8198b37af15a4d0e24f139dfcd721a9d) that reviewed the current statistical models used to predict global irradiance, the benchmark model, called the *Persistence Model*, predicts that irradiance at time step $t$ is equal to irradiance at time step $t-1$. That is to say,
 
 $$\hat{y_{t}} = y_{t-1}$$
 
