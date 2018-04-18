@@ -42,7 +42,7 @@ def engineer_lagged_DNI_features(num_lagged_features, df):
     return df
 
 
-def create_X_y(df):
+def create_X_y(df, columns):
     """
     Creates a subset of df where only dates equal to date are included
 
@@ -57,32 +57,12 @@ def create_X_y(df):
 
     y = df.pop('DNI_T_plus15').values
 
-    X = df[['Year',
-            'Month',
-            'DOY',
-            'Hour',
-            'Minute',
-            'Direct Normal [W/m^2]',
-            'DNI_T_minus1',
-            'DNI_T_minus2',
-            'DNI_T_minus3',
-            'DNI_T_minus4',
-            'DNI_T_minus5',
-            'DNI_T_minus6',
-            'DNI_T_minus7',
-            'DNI_T_minus8',
-            'DNI_T_minus9',
-            'DNI_T_minus10',
-            'DNI_T_minus11',
-            'DNI_T_minus12',
-            'DNI_T_minus13',
-            'DNI_T_minus14',
-            'DNI_T_minus15']].values
+    X = df[columns].values
 
     return X, y
 
 
-def cross_validate(model, cv_iter, df):
+def cross_validate(model, columns, cv_iter, df):
     """
     A custom cross_validation function for predicting DNI 15 minutes
     out from the current time. The model is trained on 90 days worth
@@ -132,7 +112,7 @@ def cross_validate(model, cv_iter, df):
         train_end = pd.to_datetime(day)
         mask1 = df['final_date'] >= pd.to_datetime(train_start)
         mask2 = df['final_date'] < pd.to_datetime(train_end)
-        x_train, y_train = create_X_y(df[mask1 & mask2])
+        x_train, y_train = create_X_y(df[mask1 & mask2], columns)
 
 
         # cross_validation testing set
@@ -140,7 +120,7 @@ def cross_validate(model, cv_iter, df):
         test_start = pd.to_datetime(day) + pd.Timedelta("+1 days")
         mask3 = df['final_date'] >= pd.to_datetime(test_start)
         mask4 = df['final_date'] < pd.to_datetime(test_end)
-        x_test, y_test = create_X_y(df[mask3 & mask4])
+        x_test, y_test = create_X_y(df[mask3 & mask4], columns)
 
         pers_mod_y_hat_test = df[mask3 & mask4]['Direct Normal [W/m^2]']
 
@@ -157,7 +137,7 @@ def cross_validate(model, cv_iter, df):
         test_periods.append((test_start, test_end))
         train_periods.append((train_start, train_end))
 
-    print("Average RMSE over {} splits: {:.4f}".format(cv_iter, np.mean(rmses)))
+    print("\nAverage RMSE over {} splits: {:.4f}".format(cv_iter, np.mean(rmses)))
 
     return rmses, test_periods, train_periods, persistence_model
 
@@ -197,25 +177,74 @@ def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
     else:
         plt.show()
 
-def get_persistence_model_predictions(df):
-
-    return df['Direct Normal [W/m^2]']
 
 if __name__ == "__main__":
 
     df = get_master_df("../data/ivanpah_measurements.csv")
 
+    # drop un-used columns
+    df.drop(['PST',
+             'Global Horiz [W/m^2]',
+             'Global UVA [W/m^2]',
+             'Global UVE [W/m^2]',
+             'Global UVE [Index]',
+             'Dry Bulb Temp [deg C]',
+             'Avg Wind Speed @ 30ft [m/s]',
+             'Avg Wind Direction @ 30ft [deg from N]',
+             'Peak Wind Speed @ 30ft [m/s]',
+             'UVSAET Temp [deg C]',
+             'Logger Temp [deg C]',
+             'Logger Battery [VDC]',
+             'Wind Chill Temp [deg C]',
+              'Diffuse Horiz (calc) [W/m^2]'], axis=1, inplace=True)
+
+    print("\nData successfully loaded")
+
     df = engineer_lagged_DNI_features(15, df)
+
+    print("\n15 new features successfully engineered")
 
     train = df[df['Year'] < 2017]
     test = df[df['Year'] >= 2017]
 
+    print("\nTrain test split complete")
+
     # set seed
-    np.random.seed(10000)
+    np.random.seed(5)
+
+    columns = ['Year',
+            'Month',
+            'DOY',
+            'Hour',
+            'Minute',
+            'Direct Normal [W/m^2]',
+            'Zenith Angle [degrees]',
+            'Azimuth Angle [degrees]',
+            'Airmass',
+            'DNI_T_minus1',
+            'DNI_T_minus2',
+            'DNI_T_minus3',
+            'DNI_T_minus4',
+            'DNI_T_minus5',
+            'DNI_T_minus6',
+            'DNI_T_minus7',
+            'DNI_T_minus8',
+            'DNI_T_minus9',
+            'DNI_T_minus10',
+            'DNI_T_minus11',
+            'DNI_T_minus12',
+            'DNI_T_minus13',
+            'DNI_T_minus14',
+            'DNI_T_minus15']
 
     # base model
     rf = RandomForestRegressor()
-    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(rf, 10, train)
+
+    print("\nStarting cross validation...\n")
+
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(rf, columns, 10, train)
+
+    print("\nCross validation complete.")
 
     base_model_evaluation = zip(cv_train_periods, cv_test_periods, cv_errors, pm_errors)
     base_model_overview = []
