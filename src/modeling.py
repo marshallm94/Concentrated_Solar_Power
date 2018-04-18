@@ -104,9 +104,20 @@ def cross_validate(model, cv_iter, df):
         df: (pandas dataframe)
 
     Returns:
-        rmses: (list) List of Root Mean Squared Errors, one for each
-                iteration.
+        rmses: (list) List of Root Mean Squared Errors of model
+                predictions, one value for each iteration.
 
+        test_periods: (list) List of tuples, element 0 being the
+                        start date of the test period, element 1
+                        being the end date of the test period.
+
+        train_periods: (list) List of tuples, element 0 being the
+                        start date of the training period, element
+                        1 being the end date of the training period.
+
+        persistence_model: (list) List of Root Mean Squared Errors
+                            of the Persistence Model, one value for
+                            each iteration.
     """
     days = np.unique(df['Date'])
     CV_subset = np.random.choice(days, cv_iter)
@@ -151,6 +162,41 @@ def cross_validate(model, cv_iter, df):
     return rmses, test_periods, train_periods, persistence_model
 
 
+def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
+    """
+    Plots the errors associated with the output of cross_validate()
+
+    Parameters:
+        y_dict: (dict) Keys equal the name of the error array
+                     (i.e. Random Forest, Persistence, True)
+        colors: (list) List of strings (must same length as y_dict)
+        title: (str) Title for plot
+        xlab: (str) Label for X axis
+        ylab: (str) Label for Y axis
+        savefig: (boolean/str) Will show the figure if False
+                 (default), will save the figure if a string (str).
+
+    Returns:
+        None
+    """
+
+    fig, ax = plt.subplots(figsize=(12,8))
+    counter = 0
+
+    for name, array in y_dict.items():
+        ax.plot(array, c=colors[counter], label=f"{name}")
+        counter +=1
+
+    plt.xlabel(xlab, fontweight='bold', fontsize=16)
+    plt.ylabel(ylab, fontweight='bold', rotation=0, fontsize=16)
+    ax.yaxis.set_label_coords(-0.105,0.5)
+    plt.suptitle(title, fontweight='bold', fontsize=18)
+    ax.legend()
+    if savefig:
+        plt.savefig(savefig)
+    else:
+        plt.show()
+
 def get_persistence_model_predictions(df):
 
     return df['Direct Normal [W/m^2]']
@@ -188,6 +234,13 @@ if __name__ == "__main__":
     display_data = train[mask & mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
     display_data = display_data.set_index(np.arange(display_data.shape[0]))
 
+    # used in Predicting_DNI.md
     top = display_data.loc[:6,:]
     bottom = display_data.loc[15:21,]
     final_display = pd.concat([top, bottom])
+
+    # plot CV errors
+    error_dict = {"Random Forest Error": base_model_df["Test_Error"].values,
+                  "Persistence Model Error": base_model_df["Persistent_Model_error"].values
+    }
+    error_plot(error_dict, ['red','orange'], "Random Forest vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", "../images/cross_validation_plot.png")
