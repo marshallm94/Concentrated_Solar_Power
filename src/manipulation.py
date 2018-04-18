@@ -73,7 +73,7 @@ def get_master_df(filename):
     df['final_date'] = pd.to_datetime(df['final_date'])
     df.set_index('final_date', inplace=True, drop=False)
     df["Month"] = df.index.month
-    df["Year"]
+    df["Year"] = df.index.year
     return df
 
 

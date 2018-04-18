@@ -3,8 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 from manipulation import get_master_df
 import datetime
 
@@ -86,13 +84,36 @@ def create_X_y(df):
 
 def cross_validate(model, cv_iter, df):
     """
+    A custom cross_validation function for predicting DNI 15 minutes
+    out from the current time. The model is trained on 90 days worth
+    of data, 1440 observations per day (1 per minute). The model is
+    then tested on the next 30 days immediately after the training
+    days.
 
+    cv_iter random dates will be selected from the df provided. For
+    each of those dates, the training dataset will be that date and
+    the previous 89 days. The testing dataset will be the 30 days
+    immediately following the random date selected (not including
+    that day.)
+
+    Parameters:
+        model: (sklearn model object) A model object that implements
+               fit() and predict() methods
+        cv_iter: (int) Number of iterations to do (also number of
+                 random days that will be selected)
+        df: (pandas dataframe)
+
+    Returns:
+        rmses: (list) List of Root Mean Squared Errors, one for each
+                iteration.
 
     """
     days = np.unique(df['Date'])
     CV_subset = np.random.choice(days, cv_iter)
 
     rmses = []
+    test_periods = []
+    train_periods = []
     for day in CV_subset:
         # cross validation training set
         train_start = pd.to_datetime(day) + pd.Timedelta("-90 days")
@@ -112,15 +133,12 @@ def cross_validate(model, cv_iter, df):
         y_hat = model.predict(x_test)
         print("Test RMSE: {}".format(np.sqrt(mean_squared_error(y_hat, y_test))))
         rmses.append(np.sqrt(mean_squared_error(y_hat, y_test)))
+        test_periods.append((test_start, test_end))
+        train_periods.append((train_start, train_end))
 
     print("Average RMSE over {} splits: {}".format(cv_iter, np.mean(rmses)))
 
-    return rmses
-
-
-
-
-
+    return rmses, test_periods, train_periods
 
 
 if __name__ == "__main__":
@@ -129,15 +147,22 @@ if __name__ == "__main__":
 
     df = engineer_lagged_DNI_features(15, df)
 
-    df.to_csv("../data/ivanpah_measurements_modeling.csv")
-    #
-    # df = pd.read_csv("../data/ivanpah_measurements_modeling.csv")
-
     train = df[df['Year'] < 2017]
     test = df[df['Year'] >= 2017]
 
     rf = RandomForestRegressor()
-    cv_errors = cross_validate(rf, 25, train)
+    cv_errors, cv_test_periods, cv_train_periods = cross_validate(rf, 10, train)
 
     # Persistence Model
     np.mean(np.sqrt(mean_squared_error(train['DNI_T_plus15'].values, train['Direct Normal [W/m^2]'].values)))
+
+    # df.to_csv("../data/ivanpah_measurements_modeling.csv")
+    #
+    # df = get_master_df("../data/ivanpah_measurements_modeling.csv")
+
+    # create display data
+    mask = train['Date'] == '2015-06-11'
+    mask2 = train['Hour'] > 8
+    mask3 = train['Hour'] <= 18
+    display_data = train[mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
+    display_data.to_csv("../data/display_data.csv")
