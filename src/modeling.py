@@ -1,10 +1,17 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from manipulation import get_master_df
 import datetime
+from keras.models import Sequential
+from keras.layers.core import Activation, Dense
+from keras.objectives import MSE, MAE
+from keras.callbacks import EarlyStopping
+from keras.optimizers import SGD
+from sklearn.model_selection import GridSearchCV
+import theano
 
 def engineer_lagged_DNI_features(num_lagged_features, df):
     """
@@ -178,6 +185,42 @@ def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
         plt.show()
 
 
+def build_neural_network(x_train, y_train):
+    """
+    Builds a Multi-Layer-Perceptron utilizing Keras.
+
+    Parameters:
+        x_train: (2D numpy array) A n x p matrix, with n observations
+                 and p features
+        y_train: (1D numpy array) A numpy array of length n with the
+                 target training values.
+
+    Returns:
+        model: A MLP with 2 hidden layers with 11 and 17 neurons, respectively.
+    """
+    model = Sequential()
+    input_layer_neurons = x_train.shape[0]
+    hidden_layer_neurons = [11, 17]
+
+    model.add(Dense(units=hidden_layer_neurons[0],
+                    input_dim=input_layer_neurons,
+                    kernel_initializer='uniform',
+                    activation='relu'))
+
+    model.add(Dense(units=hidden_layer_neurons[1],
+                    kernel_initializer='uniform',
+                    activation='relu'))
+
+    model.add(Dense(units=1,
+                    kernel_initializer='uniform',
+                    activation='relu'))
+
+    model.compile(optimizer='rmsprop',
+                  loss='mse')
+
+    return model
+
+
 if __name__ == "__main__":
 
     df = get_master_df("../data/ivanpah_measurements.csv")
@@ -237,7 +280,10 @@ if __name__ == "__main__":
             'DNI_T_minus14',
             'DNI_T_minus15']
 
-    # base model
+################################################################################
+################################# BASE MODEL ###################################
+################################################################################
+
     rf = RandomForestRegressor()
 
     print("\nStarting cross validation...\n")
@@ -251,7 +297,6 @@ if __name__ == "__main__":
     for triplet in base_model_evaluation:
         base_model_overview.append([str(triplet[0][0]), str(triplet[0][1]), str(triplet[1][0]), str(triplet[1][1]), triplet[2], triplet[3]])
     base_model_df = pd.DataFrame(base_model_overview, columns=['Train_Start','Train_End','Test_Start','Test_End','Test_Error','Persistent_Model_error'])
-    base_model_df.to_csv("../data/random_forest_base_model_cv.csv")
 
     # Persistence Model
     np.mean(np.sqrt(mean_squared_error(train['DNI_T_plus15'].values, train['Direct Normal [W/m^2]'].values)))
@@ -273,3 +318,10 @@ if __name__ == "__main__":
                   "Persistence Model Error": base_model_df["Persistent_Model_error"].values
     }
     error_plot(error_dict, ['red','orange'], "Random Forest vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", "../images/cross_validation_plot.png")
+
+################################################################################
+############################### NEURAL NETWORK #################################
+################################################################################
+
+    feature_columns = tf.contrib
+    estimator = tf.estimator.DNNRegressor()
