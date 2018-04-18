@@ -52,17 +52,20 @@ According to a [2013 article ](https://ac-els-cdn-com.www2.lib.ku.edu/S136403211
 
 $$\hat{y_{t}} = y_{t-1}$$
 
-| Train Start  | Train End | Test Start | Test End | Test RMSE |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| 2015-07-23 | 2015-10-21 | 2015-10-22 | 2015-11-21 | 160.946492
-| 2014-06-21 | 2014-09-19 | 2014-09-20 | 2014-10-20 | 114.987135
-| 2016-06-02 | 2016-08-31 | 2016-09-01 | 2016-10-01 | 98.157692
-| 2006-10-30 | 2007-01-28 | 2007-01-29 | 2007-02-28 | 128.163194
-| 2015-05-01 | 2015-07-30 | 2015-07-31 | 2015-08-30 | 113.429020
-| 2009-02-07 | 2009-05-08 | 2009-05-09 | 2009-06-08 | 123.809996
-| 2015-09-09 | 2015-12-08 | 2015-12-09 | 2016-01-08 | 123.123308
-| 2006-09-01 | 2006-11-30 | 2006-12-01 | 2006-12-31 | 131.964992
-| 2012-09-11 | 2012-12-10 | 2012-12-11 | 2013-01-10 | 137.424349
-| 2008-09-12 | 2008-12-11 | 2008-12-12 | 2009-01-11 | 120.205489
+I decided to use a Random Forest Regressor as my base model to compare against this benchmark. Using Scikit-Learn defaults, the errors for the Random Forest Regressor as well as the Persistence Model are show below. The Random Forest was trained over a 90 day period and then tested on the 30 days immediately thereafter.
+
+| Train Start  | Train End | Test Start | Test End | Test RMSE | Persistence Model RMSE |
+| ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
+| 2016-08-29 | 2016-11-27 | 2016-11-28 | 2016-12-28 | 106.086681 | 104.662225
+| 2006-02-09 | 2006-05-10 | 2006-05-11 | 2006-06-10 | 299.232761 | 130.591648
+| 2016-01-05 | 2016-04-04 | 2016-04-05 | 2016-05-05 | 140.317356 | 134.845834
+| 2012-05-19 | 2012-08-17 | 2012-08-18 | 2012-09-17 | 161.868311 | 141.924265
+| 2015-09-15 | 2015-12-14 | 2015-12-15 | 2016-01-14 | 127.654941 | 103.548290
+| 2011-07-30 | 2011-10-28 | 2011-10-29 | 2011-11-28 | 146.043241 | 116.224239
+| 2010-09-19 | 2010-12-18 | 2010-12-19 | 2011-01-18 | 139.110381 | 113.714270
+| 2014-10-24 | 2015-01-22 | 2015-01-23 | 2015-02-22 | 137.170199 | 107.731116
+| 2010-05-03 | 2010-08-01 | 2010-08-02 | 2010-09-01 | 108.796504 | 104.764394
+| 2013-11-14 | 2014-02-12 | 2014-02-13 | 2014-03-15 | 140.121192 | 110.903093
+
 
 A MLP was developed to predict irradiance 24 hours in advance for PV plant in Italy ([article](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)). This MLP accepted as input mean daily irradiance and mean daily air temperature, which resulted in a "...correlation coefficient of more than 98% for sunny days and slightly less than 95% for cloudy days."[$^{[1]}$](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
