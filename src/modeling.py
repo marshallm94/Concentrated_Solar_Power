@@ -199,7 +199,7 @@ def build_neural_network(x_train, y_train):
         model: A MLP with 2 hidden layers with 11 and 17 neurons, respectively.
     """
     model = Sequential()
-    input_layer_neurons = x_train.shape[0]
+    input_layer_neurons = x_train.shape[1]
     hidden_layer_neurons = [11, 17]
 
     model.add(Dense(units=hidden_layer_neurons[0],
@@ -323,5 +323,14 @@ if __name__ == "__main__":
 ############################### NEURAL NETWORK #################################
 ################################################################################
 
-    feature_columns = tf.contrib
-    estimator = tf.estimator.DNNRegressor()
+    mask = train['Date'] == '2009-07-09'
+
+    x_train = train[mask][columns].values
+    y_train = train[mask]['DNI_T_plus15'].values
+
+    model = build_neural_network(x_train, y_train)
+
+    epochs = 3
+    batch_size = 1
+
+    model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, verbose=1)
