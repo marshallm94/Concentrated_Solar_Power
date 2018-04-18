@@ -150,19 +150,27 @@ if __name__ == "__main__":
     train = df[df['Year'] < 2017]
     test = df[df['Year'] >= 2017]
 
+    # base model
     rf = RandomForestRegressor()
     cv_errors, cv_test_periods, cv_train_periods = cross_validate(rf, 10, train)
+
+    base_model_evaluation = zip(cv_train_periods, cv_test_periods, cv_errors)
+    base_model_overview = []
+    for triplet in base_model_evaluation:
+        base_model_overview.append([str(triplet[0][0]), str(triplet[0][1]), str(triplet[1][0]), str(triplet[1][1]), triplet[2]])
+    base_model_df = pd.DataFrame(base_model_overview, columns=['Train_Start','Train_End','Test_Start','Test_End','Test_Error'])
+    base_model_df.to_csv("../data/random_forest_base_model_cv.csv")
 
     # Persistence Model
     np.mean(np.sqrt(mean_squared_error(train['DNI_T_plus15'].values, train['Direct Normal [W/m^2]'].values)))
 
-    # df.to_csv("../data/ivanpah_measurements_modeling.csv")
-    #
-    # df = get_master_df("../data/ivanpah_measurements_modeling.csv")
-
     # create display data
     mask = train['Date'] == '2015-06-11'
-    mask2 = train['Hour'] > 8
-    mask3 = train['Hour'] <= 18
-    display_data = train[mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
-    display_data.to_csv("../data/display_data.csv")
+    mask2 = train['Hour'] > 10
+    mask3 = train['Hour'] <= 11
+    display_data = train[mask & mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
+    display_data = display_data.set_index(np.arange(display_data.shape[0]))
+
+    top = display_data.loc[:6,:]
+    bottom = display_data.loc[15:21,]
+    final_display = pd.concat([top, bottom])
