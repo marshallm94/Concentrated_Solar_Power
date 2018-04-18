@@ -114,6 +114,7 @@ def cross_validate(model, cv_iter, df):
     rmses = []
     test_periods = []
     train_periods = []
+    persistence_model = []
     for day in CV_subset:
         # cross validation training set
         train_start = pd.to_datetime(day) + pd.Timedelta("-90 days")
@@ -122,6 +123,7 @@ def cross_validate(model, cv_iter, df):
         mask2 = df['final_date'] < pd.to_datetime(train_end)
         x_train, y_train = create_X_y(df[mask1 & mask2])
 
+
         # cross_validation testing set
         test_end = pd.to_datetime(day) + pd.Timedelta("+31 days")
         test_start = pd.to_datetime(day) + pd.Timedelta("+1 days")
@@ -129,17 +131,29 @@ def cross_validate(model, cv_iter, df):
         mask4 = df['final_date'] < pd.to_datetime(test_end)
         x_test, y_test = create_X_y(df[mask3 & mask4])
 
+        pers_mod_y_hat_test = df[mask3 & mask4]['Direct Normal [W/m^2]']
+
         model.fit(x_train, y_train)
         y_hat = model.predict(x_test)
-        print("Test RMSE: {}".format(np.sqrt(mean_squared_error(y_hat, y_test))))
-        rmses.append(np.sqrt(mean_squared_error(y_hat, y_test)))
+
+        rmse_test_error = np.sqrt(mean_squared_error(y_test, y_hat))
+        pm_test_error = np.sqrt(mean_squared_error(y_test, pers_mod_y_hat_test))
+
+        print("{} RMSE: {:.4f} | Persistence Model RMSE: {:.4f}".format(model.__class__.__name__, rmse_test_error, pm_test_error))
+
+        rmses.append(rmse_test_error)
+        persistence_model.append(pm_test_error)
         test_periods.append((test_start, test_end))
         train_periods.append((train_start, train_end))
 
-    print("Average RMSE over {} splits: {}".format(cv_iter, np.mean(rmses)))
+    print("Average RMSE over {} splits: {:.4f}".format(cv_iter, np.mean(rmses)))
 
-    return rmses, test_periods, train_periods
+    return rmses, test_periods, train_periods, persistence_model
 
+
+def get_persistence_model_predictions(df):
+
+    return df['Direct Normal [W/m^2]']
 
 if __name__ == "__main__":
 
@@ -150,15 +164,18 @@ if __name__ == "__main__":
     train = df[df['Year'] < 2017]
     test = df[df['Year'] >= 2017]
 
+    # set seed
+    np.random.seed(10000)
+
     # base model
     rf = RandomForestRegressor()
-    cv_errors, cv_test_periods, cv_train_periods = cross_validate(rf, 10, train)
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(rf, 10, train)
 
-    base_model_evaluation = zip(cv_train_periods, cv_test_periods, cv_errors)
+    base_model_evaluation = zip(cv_train_periods, cv_test_periods, cv_errors, pm_errors)
     base_model_overview = []
     for triplet in base_model_evaluation:
-        base_model_overview.append([str(triplet[0][0]), str(triplet[0][1]), str(triplet[1][0]), str(triplet[1][1]), triplet[2]])
-    base_model_df = pd.DataFrame(base_model_overview, columns=['Train_Start','Train_End','Test_Start','Test_End','Test_Error'])
+        base_model_overview.append([str(triplet[0][0]), str(triplet[0][1]), str(triplet[1][0]), str(triplet[1][1]), triplet[2], triplet[3]])
+    base_model_df = pd.DataFrame(base_model_overview, columns=['Train_Start','Train_End','Test_Start','Test_End','Test_Error','Persistent_Model_error'])
     base_model_df.to_csv("../data/random_forest_base_model_cv.csv")
 
     # Persistence Model
