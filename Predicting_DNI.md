@@ -11,6 +11,8 @@ In contrast to PV power plants, CSP technology has the ability to efficiently an
 
 ![](images/csp_diagram.jpg)
 
+![](images/sun_position.png)
+
 ### The Problem
 
 Knowing how much energy a plant will be able to produce is clearly highly dependent on the amount of DNI (measured in $\frac{Watts}{Meter^2}$ here) the heliostats receive, which, as we will see below, is highly irregular.
@@ -28,6 +30,8 @@ The goal of this analysis will be to see how accurately different models are abl
 ![](images/irradiance_20170705.png)
 
 ### Data Preview
+
+
 
 | Time Stamp  | DNI | DNI 15 Minutes from Now
 | ------------- | ------------- | ------------- |
@@ -75,3 +79,8 @@ I decided to use a Random Forest Regressor as my base model to compare against t
 A MLP was developed to predict irradiance 24 hours in advance for PV plant in Italy ([article](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)). This MLP accepted as input mean daily irradiance and mean daily air temperature, which resulted in a "...correlation coefficient of more than 98% for sunny days and slightly less than 95% for cloudy days."[$^{[1]}$](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
 
 < insert super cool, industry changing model here >
+
+Acknowledgements:
+
+* Data Source: [Andreas, A.; Stoffel, T.; (2006). University of Nevada (UNLV):
+Las Vegas, Nevada (Data); NREL Report No. DA-5500-56509.](http://dx.doi.org/10.5439/1052548) (Data downloaded April 14, 2018)
