@@ -205,7 +205,7 @@ def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
         plt.show()
 
 
-def build_neural_network(x_train, y_train, hidden_layer_neurons):
+def build_neural_network(n_predictors, hidden_layer_neurons):
     """
     Builds a Multi-Layer-Perceptron utilizing Keras.
 
@@ -221,7 +221,7 @@ def build_neural_network(x_train, y_train, hidden_layer_neurons):
         model: A MLP with 2 hidden layers with 11 and 17 neurons, respectively.
     """
     model = Sequential()
-    input_layer_neurons = x_train.shape[1]
+    input_layer_neurons = n_predictors
 
     model.add(Dense(units=hidden_layer_neurons[0],
                     input_dim=input_layer_neurons,
@@ -232,7 +232,7 @@ def build_neural_network(x_train, y_train, hidden_layer_neurons):
                     kernel_initializer='uniform',
                     activation='relu'))
 
-    model.add(Dense(output_dim=1))
+    model.add(Dense(units=1))
 
     model.compile(optimizer='rmsprop',
                   loss='mse')
@@ -342,7 +342,9 @@ if __name__ == "__main__":
 ############################### NEURAL NETWORK #################################
 ################################################################################
 
-    mlp = build_neural_network(x_train, y_train, [8, 12])
+    np.random.seed(5)
+
+    mlp = build_neural_network(len(columns), [8, 12])
 
     stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.005)
 
