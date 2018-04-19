@@ -108,9 +108,9 @@ def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
     ax.yaxis.set_label_coords(-0.105,0.5)
     plt.legend()
     plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"), fontweight='bold', fontsize=18)
-    plt.show()
     if savefig:
         plt.savefig(savefig)
+    plt.show()
 
 
 def plot_daterange_DNI(start_date, end_date, hour_range, groupby, variables, ylab, df, savefig=False):

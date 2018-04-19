@@ -144,6 +144,12 @@ This model was trained in the same manner that the Random Forest Regressor was t
 
 ![](images/neural_network_cv_error.png)
 
+#### Example Day
+
+Although the predictions do lag slightly behind the actual values, the MLP does pic up the drop in DNI, as shown below.
+
+![](images/example_day.png)
+
 ### Next Steps
 
 * Experiment with a broader and more formal grid search for the MLP (more variables, longer training time, etc.)

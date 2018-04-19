@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
-from manipulation import get_master_df
+from manipulation import get_master_df, plot_day
 import datetime
 from keras.models import Sequential
 from keras.layers.core import Activation, Dense
@@ -12,6 +12,7 @@ from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 from sklearn.model_selection import GridSearchCV
 from keras.callbacks import EarlyStopping
+import matplotlib.dates as mdates
 
 def engineer_lagged_DNI_features(num_lagged_features, df):
     """
@@ -364,3 +365,20 @@ if __name__ == "__main__":
     }
 
     error_plot(error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error.png')
+
+    # plot sample day
+    np.random.seed(1)
+
+    day = np.random.choice(np.unique(df['Date']))
+
+    mask = df['Date'] == day
+
+    x_example = df[mask]
+
+    y_true = df[mask]['DNI_T_plus15']
+
+    y_hat = mlp.predict(x_example[columns])
+
+    x_example['Neural_net_preds'] = y_hat
+
+    plot_day(day, [6, 16], ['DNI_T_plus15','Neural_net_preds'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", x_example, "../images/example_day.png")
