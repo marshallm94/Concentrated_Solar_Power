@@ -46,7 +46,9 @@ The goal of this analysis will be to see how accurately different models are abl
 
 ### Feature Engineering
 
-In addition to creating my target variables as shown above, for each observation I 15 new variables, with the DNI measurement of the timestamp *t* minutes back. (i.e for observation *i*, the variable named DNI_T_minus2 would be the time would be the DNI measurement of observation *i - 2*)
+In addition to creating my target variables as shown above, for each observation, I created 15 new variables, with the DNI measurement of the timestamp *t* minutes back. (i.e for observation *i* at timestamp *x*, the variable named DNI_T_minus2 would be the DNI measurement of observation *i - 2* at timestamp *x - 2*)
+
+This allows the information that relates the recent past to the present and future to be contained when the observations are randomized for cross validation. 
 
 
 ### EDA
@@ -64,7 +66,7 @@ In addition to creating my target variables as shown above, for each observation
 
 ### My Base Model vs The Benchmark
 
-According to a [2013 article ](https://ac-els-cdn-com.www2.lib.ku.edu/S1364032113004334/1-s2.0-S1364032113004334-main.pdf?_tid=41f83cfe-de21-4d94-803f-a7470d8e51df&acdnat=1523992118_8198b37af15a4d0e24f139dfcd721a9d) that reviewed the current statistical models used to predict global irradiance, the benchmark model, called the *Persistence Model*, predicts that irradiance at time step $t$ is equal to irradiance at time step $t-1$. That is to say,
+According to an article published in 2013 (Acknowledgement 3) that reviewed the current statistical models used to predict global irradiance, the benchmark model, called the *Persistence Model*, predicts that irradiance at time step $t$ is equal to irradiance at time step $t-1$. That is to say,
 
 ![](images/persistence_model_formula.png)
 
@@ -101,16 +103,18 @@ I decided to use a Random Forest Regressor as my base model to compare against t
 
 ### Neural Networks
 
-A MLP was developed to predict irradiance 24 hours in advance for PV plant in Italy ([article](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)). This MLP accepted as input mean daily irradiance and mean daily air temperature, which resulted in a "...correlation coefficient of more than 98% for sunny days and slightly less than 95% for cloudy days."[$^{[1]}$](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
+A Multi Layer Perceptron was developed to predict irradiance 24 hours in advance for PV plant in Italy (Acknowledgement 2). This MLP accepted as input mean daily irradiance and mean daily air temperature, which resulted in a "...correlation coefficient of more than 98% for sunny days and slightly less than 95% for cloudy days."[$^{[1]}$](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
 
 
 Preliminary Results
 
 ![](images/neural_network_cv_error.png)
 
-![](images/neural_network_cv_error_outlier_removed.png)
-
 Acknowledgements:
 
-* Data Source: [Andreas, A.; Stoffel, T.; (2006). University of Nevada (UNLV):
+1. Data Source: [Andreas, A.; Stoffel, T.; (2006). University of Nevada (UNLV):
 Las Vegas, Nevada (Data); NREL Report No. DA-5500-56509.](http://dx.doi.org/10.5439/1052548) (Data downloaded April 14, 2018)
+
+2. [A 24-h forecast of solar irradiance using artificial neural network: Application for performance prediction of aa grid-connected PV plant at Triest, Italy.](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
+
+3. [Review of solar irradiance forecasting methods and a proposition for small-scale insular grids](https://ac-els-cdn-com.www2.lib.ku.edu/S1364032113004334/1-s2.0-S1364032113004334-main.pdf?_tid=41f83cfe-de21-4d94-803f-a7470d8e51df&acdnat=1523992118_8198b37af15a4d0e24f139dfcd721a9d)
