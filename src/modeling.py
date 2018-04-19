@@ -11,7 +11,7 @@ from keras.objectives import MSE, MAE
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 from sklearn.model_selection import GridSearchCV
-import theano
+from keras.callbacks import EarlyStopping
 
 def engineer_lagged_DNI_features(num_lagged_features, df):
     """
@@ -69,7 +69,7 @@ def create_X_y(df, columns):
     return X, y
 
 
-def cross_validate(model, columns, cv_iter, df):
+def cross_validate(model, columns, cv_iter, df, network=False):
     """
     A custom cross_validation function for predicting DNI 15 minutes
     out from the current time. The model is trained on 90 days worth
@@ -89,6 +89,9 @@ def cross_validate(model, columns, cv_iter, df):
         cv_iter: (int) Number of iterations to do (also number of
                  random days that will be selected)
         df: (pandas dataframe)
+        network: (boolean/dict) False if model is not a Neural
+                 Network (default), else a dict with parameters for
+                 the Network to train with.
 
     Returns:
         rmses: (list) List of Root Mean Squared Errors of model
@@ -114,6 +117,7 @@ def cross_validate(model, columns, cv_iter, df):
     train_periods = []
     persistence_model = []
     for day in CV_subset:
+
         # cross validation training set
         train_start = pd.to_datetime(day) + pd.Timedelta("-90 days")
         train_end = pd.to_datetime(day)
@@ -129,10 +133,26 @@ def cross_validate(model, columns, cv_iter, df):
         mask4 = df['final_date'] < pd.to_datetime(test_end)
         x_test, y_test = create_X_y(df[mask3 & mask4], columns)
 
+        #persistence_model_predictions
         pers_mod_y_hat_test = df[mask3 & mask4]['Direct Normal [W/m^2]']
 
-        model.fit(x_train, y_train)
-        y_hat = model.predict(x_test)
+        if network:
+
+            model.fit(x_train,
+                      y_train,
+                      epochs=network['epochs'],
+                      batch_size=network['batch_size'],
+                      shuffle=network['shuffle'],
+                      validation_split=network['validation_split'],
+                      callbacks=[network['callback']],
+                      verbose=1)
+
+            y_hat = model.predict(x_test)
+
+        else:
+
+            model.fit(x_train, y_train)
+            y_hat = model.predict(x_test)
 
         rmse_test_error = np.sqrt(mean_squared_error(y_test, y_hat))
         pm_test_error = np.sqrt(mean_squared_error(y_test, pers_mod_y_hat_test))
@@ -185,7 +205,7 @@ def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
         plt.show()
 
 
-def build_neural_network(x_train, y_train):
+def build_neural_network(x_train, y_train, hidden_layer_neurons):
     """
     Builds a Multi-Layer-Perceptron utilizing Keras.
 
@@ -194,13 +214,14 @@ def build_neural_network(x_train, y_train):
                  and p features
         y_train: (1D numpy array) A numpy array of length n with the
                  target training values.
+        hidden_layer_neurons: (list) List of ints for the number of
+                              neurons in each hidden layer.
 
     Returns:
         model: A MLP with 2 hidden layers with 11 and 17 neurons, respectively.
     """
     model = Sequential()
     input_layer_neurons = x_train.shape[1]
-    hidden_layer_neurons = [11, 17]
 
     model.add(Dense(units=hidden_layer_neurons[0],
                     input_dim=input_layer_neurons,
@@ -321,33 +342,29 @@ if __name__ == "__main__":
 ############################### NEURAL NETWORK #################################
 ################################################################################
 
-    train_mask = train['Date'] == '2009-07-09'
+    mlp = build_neural_network(x_train, y_train, [8, 12])
 
-    x_train = train[train_mask][columns].values
-    y_train = train[train_mask]['DNI_T_plus15'].values
+    stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.005)
 
-    test_mask = train['Date'] == '2009-07-10'
+    network_dict = {'epochs': 5,
+                    'batch_size': 250,
+                    'shuffle': True,
+                    'validation_split': 0.25,
+                    'callback': stop_criteria
+    }
 
-    x_test = train[test_mask][columns].values
-    y_test = train[test_mask]['DNI_T_plus15'].values
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(mlp, columns, 10, train, network_dict)
 
-    model = build_neural_network(x_train, y_train)
 
-    epochs = 50
-    batch_size = 1
-    shuffle = True
-    validation_split = 0.2
+    # plot Neural Network CV errors
+    error_dict = {"Neural Network Error": cv_errors,
+                  "Persistence Model Error": pm_errors
+    }
 
-    model.fit(x_train,
-              y_train,
-              epochs=epochs,
-              batch_size=batch_size,
-              shuffle=shuffle,
-              validation_split=validation_split,
-              verbose=1)
+    error_plot(error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error.png')
 
-    y_hat = model.predict(x_test)
+    adj_error_dict = {"Neural Network Error": cv_errors[1:],
+                  "Persistence Model Error": pm_errors[1:]
+    }
 
-    test_rmse = np.sqrt(mean_squared_error(y_test, y_hat))
-
-    print(f"MLP Testing Error: {test_rmse}")
+    error_plot(adj_error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors (Outlier Removed)", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error_outlier_removed.png')
