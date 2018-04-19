@@ -364,9 +364,3 @@ if __name__ == "__main__":
     }
 
     error_plot(error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error.png')
-
-    adj_error_dict = {"Neural Network Error": cv_errors[1:],
-                  "Persistence Model Error": pm_errors[1:]
-    }
-
-    error_plot(adj_error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors (Outlier Removed)", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error_outlier_removed.png')
