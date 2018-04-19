@@ -44,13 +44,6 @@ The goal of this analysis will be to see how accurately different models are abl
 | 2015-06-11 11:20:00 | **893.600** | 896.846
 | 2015-06-11 11:21:00 | **895.570** | 898.221
 
-### Feature Engineering
-
-In addition to creating my target variables as shown above, for each observation, I created 15 new variables, with the DNI measurement of the timestamp *t* minutes back. (i.e for observation *i* at timestamp *x*, the variable named DNI_T_minus2 would be the DNI measurement of observation *i - 2* at timestamp *x - 2*)
-
-This allows the information that relates the recent past to the present and future to be contained when the observations are randomized for cross validation. 
-
-
 ### EDA
 
 ![](images/correlation_plot.png)
@@ -63,6 +56,13 @@ This allows the information that relates the recent past to the present and futu
 
 ![](images/irradiance_20170705.png)
 
+### Feature Engineering
+
+In addition to creating my target variables as shown above, for each observation, I created 15 new variables, with the DNI measurement of the timestamp *t* minutes back. (i.e for observation *i* at timestamp *x*, the variable named DNI_T_minus2 would be the DNI measurement of observation *i - 2* at timestamp *x - 2*)
+
+This allows the information that relates the recent past to the present and future to be contained when the observations are randomized during cross validation.
+
+In addition to these 15 manufactured variables, I included DNI at the current timestamp, the year, month, DOY, time (broken into two columns, hour and minute), Zenith Angle and Azimuth Angle (both measured in degrees.) This totals to be 24 predictors.
 
 ### My Base Model vs The Benchmark
 
@@ -85,25 +85,15 @@ I decided to use a Random Forest Regressor as my base model to compare against t
 8  2007-12-28 | 2008-03-27 | 2008-03-28 | 2008-04-27 | 114.826339 | 97.758155
 9  2011-05-23 | 2011-08-21 | 2011-08-22 | 2011-09-21 | 113.852410 | 121.753249
 
-
-
-
-
-
-
-
-
-
-
-
-
 ![](images/cross_validation_plot.png)
 
 *(It is notable that I performed cross-validation using various random seeds, there were some test periods where there was a drastic difference between the random forest classifier and the base model. This would require further exploration to deem causation.)*
 
-### Neural Networks
+### Neural Network
 
-A Multi Layer Perceptron was developed to predict irradiance 24 hours in advance for PV plant in Italy (Acknowledgement 2). This MLP accepted as input mean daily irradiance and mean daily air temperature, which resulted in a "...correlation coefficient of more than 98% for sunny days and slightly less than 95% for cloudy days."[$^{[1]}$](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
+A Multi Layer Perceptron (MLP) was developed to predict irradiance 24 hours in advance for PV plant in Italy (Acknowledgement 2). This MLP accepted as input mean daily irradiance and mean daily air temperature. While the authors of this article were predicting irradiance further in advance than I am for this analysis, I decided to use the framework of their MLP as a starting point.
+
+They had two hidden layers, with 11 and 17 neurons, respectively. While their model only had two inputs (mean daily solar irradiance and air temperature), I used the same number of predictors that were used in the Random Forest Regressor above
 
 
 Preliminary Results
