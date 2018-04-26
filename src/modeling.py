@@ -90,6 +90,10 @@ def cross_validate(model, columns, cv_iter, train_duration, test_duration, df, n
         cv_iter: (int) Number of iterations to do (also number of
                  random days that will be selected)
         df: (pandas dataframe)
+        train_duration: (int) The number of days the model will be
+                        trained on
+        test_duration: (int) The number of days the model will be
+                        tested on
         network: (boolean/dict) False if model is not a Neural
                  Network (default), else a dict with parameters for
                  the Network to train with.
