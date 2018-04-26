@@ -70,7 +70,7 @@ def create_X_y(df, columns):
     return X, y
 
 
-def cross_validate(model, columns, cv_iter, df, network=False):
+def cross_validate(model, columns, cv_iter, train_duration, test_duration, df, network=False):
     """
     A custom cross_validation function for predicting DNI 15 minutes
     out from the current time. The model is trained on 90 days worth
@@ -120,7 +120,7 @@ def cross_validate(model, columns, cv_iter, df, network=False):
     for day in CV_subset:
 
         # cross validation training set
-        train_start = pd.to_datetime(day) + pd.Timedelta("-90 days")
+        train_start = pd.to_datetime(day) + pd.Timedelta(f"-{train_duration} days")
         train_end = pd.to_datetime(day)
         mask1 = df['final_date'] >= pd.to_datetime(train_start)
         mask2 = df['final_date'] < pd.to_datetime(train_end)
@@ -128,7 +128,7 @@ def cross_validate(model, columns, cv_iter, df, network=False):
 
 
         # cross_validation testing set
-        test_end = pd.to_datetime(day) + pd.Timedelta("+31 days")
+        test_end = pd.to_datetime(day) + pd.Timedelta(f"+{test_duration} days")
         test_start = pd.to_datetime(day) + pd.Timedelta("+1 days")
         mask3 = df['final_date'] >= pd.to_datetime(test_start)
         mask4 = df['final_date'] < pd.to_datetime(test_end)
@@ -138,20 +138,17 @@ def cross_validate(model, columns, cv_iter, df, network=False):
         pers_mod_y_hat_test = df[mask3 & mask4]['Direct Normal [W/m^2]']
 
         if network:
-
             model.fit(x_train,
                       y_train,
                       epochs=network['epochs'],
                       batch_size=network['batch_size'],
                       shuffle=network['shuffle'],
                       validation_split=network['validation_split'],
-                      callbacks=[network['callback']],
+                      # callbacks=[network['callback']],
                       verbose=1)
 
             y_hat = model.predict(x_test)
-
         else:
-
             model.fit(x_train, y_train)
             y_hat = model.predict(x_test)
 
@@ -241,6 +238,30 @@ def build_neural_network(n_predictors, hidden_layer_neurons):
     return model
 
 
+def test_model(model, df, predictors, response):
+    """
+    Tests the model specified on the testing data specified:
+
+    Parametes:
+        model: (model object) A model that has been previously fit
+               on training data and implements a predct method.
+        df: (pandas dataframe) The testing data to be used.
+        predictors: (list) List of strings, referencing the columns
+                    in df that are used by model.
+        response: (str) The name of the response/target variable
+                  withing df
+
+    Returns:
+        y_hat: (numpy array) Predictions returned by the model.
+        y_true: (numpy array) The true values of the response
+                variable.
+    """
+
+    y_true = df[response].values
+    y_hat = model.predict(df[columns].values)
+    return y_hat, y_true
+
+
 if __name__ == "__main__":
 
     df = get_master_df("../data/ivanpah_measurements.csv")
@@ -251,7 +272,6 @@ if __name__ == "__main__":
              'Global UVA [W/m^2]',
              'Global UVE [W/m^2]',
              'Global UVE [Index]',
-             'Dry Bulb Temp [deg C]',
              'Avg Wind Speed @ 30ft [m/s]',
              'Avg Wind Direction @ 30ft [deg from N]',
              'Peak Wind Speed @ 30ft [m/s]',
@@ -267,10 +287,9 @@ if __name__ == "__main__":
 
     print("\n15 new features successfully engineered")
 
-    train = df[df['Year'] < 2017]
-    test = df[df['Year'] >= 2017]
+    df = df[df['Direct Normal [W/m^2]'] > -10]
 
-    print("\nTrain test split complete")
+    print("\nDataFrame limited to observation with DNI >= -10")
 
     # set seed
     np.random.seed(5)
@@ -308,7 +327,7 @@ if __name__ == "__main__":
 
     print("\nStarting cross validation...\n")
 
-    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(rf, columns, 10, train)
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(rf, columns, 10, 90, 31, df)
 
     print("\nCross validation complete.")
 
@@ -319,13 +338,13 @@ if __name__ == "__main__":
     base_model_df = pd.DataFrame(base_model_overview, columns=['Train_Start','Train_End','Test_Start','Test_End','Test_Error','Persistent_Model_error'])
 
     # Persistence Model
-    np.mean(np.sqrt(mean_squared_error(train['DNI_T_plus15'].values, train['Direct Normal [W/m^2]'].values)))
+    np.mean(np.sqrt(mean_squared_error(df['DNI_T_plus15'].values, df['Direct Normal [W/m^2]'].values)))
 
     # create display data
-    mask = train['Date'] == '2015-06-11'
-    mask2 = train['Hour'] > 10
-    mask3 = train['Hour'] <= 11
-    display_data = train[mask & mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
+    mask = df['Date'] == '2015-06-11'
+    mask2 = df['Hour'] > 10
+    mask3 = df['Hour'] <= 11
+    display_data = df[mask & mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
     display_data = display_data.set_index(np.arange(display_data.shape[0]))
 
     # used in Predicting_DNI.md
@@ -352,11 +371,11 @@ if __name__ == "__main__":
     network_dict = {'epochs': 5,
                     'batch_size': 250,
                     'shuffle': True,
-                    'validation_split': 0.25,
-                    'callback': stop_criteria
+                    'validation_split': 0.25
+                    # 'callback': stop_criteria
     }
 
-    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(mlp, columns, 10, train, network_dict)
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(mlp, columns, 10, 90, 31, df, network_dict)
 
 
     # plot Neural Network CV errors
