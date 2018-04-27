@@ -11,7 +11,6 @@ from keras.objectives import MSE, MAE
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 from sklearn.model_selection import GridSearchCV
-from keras.callbacks import EarlyStopping
 import matplotlib.dates as mdates
 
 def engineer_lagged_DNI_features(num_lagged_features, df):
@@ -70,15 +69,15 @@ def create_X_y(df, columns):
     return X, y
 
 
-def cross_validate(model, columns, cv_iter, train_duration, test_duration, df, network=False):
+def test_model(model, columns, iter, train_duration, test_duration, df, network=False):
     """
-    A custom cross_validation function for predicting DNI 15 minutes
+    A custom model testing function for predicting DNI 15 minutes
     out from the current time. The model is trained on 90 days worth
     of data, 1440 observations per day (1 per minute). The model is
     then tested on the next 30 days immediately after the training
     days.
 
-    cv_iter random dates will be selected from the df provided. For
+    iter random dates will be selected from the df provided. For
     each of those dates, the training dataset will be that date and
     the previous 89 days. The testing dataset will be the 30 days
     immediately following the random date selected (not including
@@ -87,7 +86,7 @@ def cross_validate(model, columns, cv_iter, train_duration, test_duration, df, n
     Parameters:
         model: (sklearn model object) A model object that implements
                fit() and predict() methods
-        cv_iter: (int) Number of iterations to do (also number of
+        iter: (int) Number of iterations to do (also number of
                  random days that will be selected)
         df: (pandas dataframe)
         train_duration: (int) The number of days the model will be
@@ -115,7 +114,7 @@ def cross_validate(model, columns, cv_iter, train_duration, test_duration, df, n
                             each iteration.
     """
     days = np.unique(df['Date'])
-    CV_subset = np.random.choice(days, cv_iter)
+    CV_subset = np.random.choice(days, iter)
 
     rmses = []
     test_periods = []
@@ -166,14 +165,14 @@ def cross_validate(model, columns, cv_iter, train_duration, test_duration, df, n
         test_periods.append((test_start, test_end))
         train_periods.append((train_start, train_end))
 
-    print("\nAverage RMSE over {} splits: {:.4f}".format(cv_iter, np.mean(rmses)))
+    print("\nAverage RMSE over {} splits: {:.4f}".format(iter, np.mean(rmses)))
 
     return rmses, test_periods, train_periods, persistence_model
 
 
 def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
     """
-    Plots the errors associated with the output of cross_validate()
+    Plots the errors associated with the output of test_model()
 
     Parameters:
         y_dict: (dict) Keys equal the name of the error array
@@ -220,7 +219,7 @@ def build_neural_network(n_predictors, hidden_layer_neurons):
                               neurons in each hidden layer.
 
     Returns:
-        model: A MLP with 2 hidden layers with 11 and 17 neurons, respectively.
+        model: A MLP with 2 hidden layers
     """
     model = Sequential()
     input_layer_neurons = n_predictors
@@ -240,31 +239,6 @@ def build_neural_network(n_predictors, hidden_layer_neurons):
                   loss='mse')
 
     return model
-
-
-def test_model(model, df, predictors, response):
-    """
-    Tests the model specified on the testing data specified:
-
-    Parametes:
-        model: (model object) A model that has been previously fit
-               on training data and implements a predct method.
-        df: (pandas dataframe) The testing data to be used.
-        predictors: (list) List of strings, referencing the columns
-                    in df that are used by model.
-        response: (str) The name of the response/target variable
-                  withing df
-
-    Returns:
-        y_hat: (numpy array) Predictions returned by the model.
-        y_true: (numpy array) The true values of the response
-                variable.
-    """
-
-    y_true = df[response].values
-    y_hat = model.predict(df[columns].values)
-    return y_hat, y_true
-
 
 if __name__ == "__main__":
 
@@ -331,7 +305,7 @@ if __name__ == "__main__":
 
     print("\nStarting cross validation...\n")
 
-    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(rf, columns, 10, 90, 31, df)
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(rf, columns, 10, 90, 31, df)
 
     print("\nCross validation complete.")
 
@@ -379,7 +353,7 @@ if __name__ == "__main__":
                     # 'callback': stop_criteria
     }
 
-    cv_errors, cv_test_periods, cv_train_periods, pm_errors = cross_validate(mlp, columns, 10, 90, 31, df, network_dict)
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(mlp, columns, 10, 90, 31, df, network_dict)
 
 
     # plot Neural Network CV errors
