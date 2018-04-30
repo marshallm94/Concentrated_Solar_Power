@@ -13,9 +13,10 @@ from keras.objectives import MSE, MAE
 from keras.callbacks import EarlyStopping
 from sklearn.model_selection import GridSearchCV
 from keras.wrappers.scikit_learn import KerasRegressor
+from keras.optimizers import RMSprop
 
 
-def build_neural_network(n_predictors=28, hidden_layer_neurons=[8,12]):
+def build_neural_network(n_predictors=28, hidden_layer_neurons=8, hidden_layer_neurons1=12):
     """
     Builds a Multi-Layer-Perceptron utilizing Keras.
 
@@ -33,21 +34,60 @@ def build_neural_network(n_predictors=28, hidden_layer_neurons=[8,12]):
     model = Sequential()
     input_layer_neurons = n_predictors
 
-    model.add(Dense(units=hidden_layer_neurons[0],
+    model.add(Dense(units=hidden_layer_neurons,
                     input_dim=input_layer_neurons,
                     kernel_initializer='uniform',
-                    activation='relu'))
+                    activation='linear'))
 
-    model.add(Dense(units=hidden_layer_neurons[1],
+    model.add(Dense(units=hidden_layer_neurons1,
                     kernel_initializer='uniform',
-                    activation='relu'))
+                    activation='linear'))
 
     model.add(Dense(units=1))
 
-    model.compile(optimizer='rmsprop',
+    optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=None, decay=0.0)
+
+    model.compile(optimizer=optimizer,
                   loss='mse')
 
     return model
+
+# def build_first_hidden_layer(input_neurons=28, hidden_layer_neurons=8):
+#
+#     model = Sequential()
+#     model.add(Dense(input_dim=n_neurons,
+#                     units=hidden_layer_neurons,
+#                     kernel_initializer='uniform',
+#                     activation='relu'))
+#     return model
+#
+# def build_hidden_layer_n(model, num_neurons):
+#
+#     model.add(Dense(units=num_neurons,
+#                     kernel_initializer='uniform',
+#                     activation='relu'))
+#     return model
+#
+# def build_output_layer(model):
+#
+#     model.add(Dense(unit=1))
+#     optimizer = RMSprop(lr=0.001, rho=0.9, epsilon=None, decay=0.0)
+#     model.compile(optimizer=optimizer,
+#                   loss='mse')
+#
+#     return model
+#
+# def ag_neural_network(n_predictors=28, num_hidden_layers=2, hidden_layer_neuron_list=[8,12]):
+#
+#     input_neurons = n_predictors
+#     model = build_first_hidden_layer(input_neurons)
+#
+#     for i in range(num_hidden_layers):
+#         model = build_hidden_layer_n(model, hidden_layer_neuron_list[i])
+#
+#     model = build_output_layer(model)
+#
+#     return model
 
 
 if __name__ == "__main__":
@@ -74,8 +114,6 @@ if __name__ == "__main__":
     df = df[df['Direct Normal [W/m^2]'] > -10]
 
     print("\nDataFrame limited to observation with DNI >= -10")
-
-    # set seed
 
     columns = ['Year',
             'Month',
@@ -106,37 +144,49 @@ if __name__ == "__main__":
             'DNI_T_minus14',
             'DNI_T_minus15']
 
-    model = KerasRegressor(build_fn=build_neural_network)
+    n_predictors = len(columns)
+    hidden_layer_neurons = [8, 12]
+
+    np.random.seed(10000)
 
     # create parameter lists for GridSearchCV
-    batch_size = list(np.arange(10, 250, 10))
-    epochs = list(np.arange(5, 20, 5))
+        # Results:
+            # Bach Size = 17
+            # Epochs = 38
 
-    neural_net_grid_dict = {'batch_size': batch_size,
-                            'epochs': epochs}
-
-    neural_net_grid = GridSearchCV(estimator=model,
-                                   param_grid=neural_net_grid_dict,
-                                   scoring='neg_mean_squared_error',
-                                   verbose=1,
-                                   n_jobs=-1)
-
-    mask = df['Date'] == '2006-11-06'
-    X, y = create_X_y(df[mask], columns)
-
-    grid_result = neural_net_grid.fit(X, y)
-
-    print(f"\nBest Score: {grid_result.best_score_}")
-    print(f"\nBest Model: {grid_result.best_estimator_}")
+    # model = KerasRegressor(build_fn=build_neural_network, epochs=38, batch_size=17)
+    #
+    # x = list(np.arange(10, 30, 1))
+    # x1 = list(np.arange(10, 30, 1))
+    #
+    # neural_net_grid_dict = {'hidden_layer_neurons': x,
+    #                         "hidden_layer_neurons1": x1}
+    #
+    # neural_net_grid = GridSearchCV(estimator=model,
+    #                                param_grid=neural_net_grid_dict,
+    #                                scoring='neg_mean_squared_error',
+    #                                verbose=1,
+    #                                n_jobs=-1,
+    #                                cv=3)
+    #
+    #
+    #
+    # mask = df['Date'] == np.random.choice(np.unique(df['Date']))
+    # X, y = create_X_y(df[mask], columns)
+    #
+    # grid_result = neural_net_grid.fit(X, y)
+    #
+    # print(f"\nBest Score: {grid_result.best_score_}")
+    # print(f"\nBest Parameters: {grid_result.best_params_}")
     # stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.005)
     #
-    # network_dict = {'epochs': 5,
-    #                 'batch_size': 250,
-    #                 'shuffle': True,
-    #                 'validation_split': 0.25
-    #                 # 'callback': stop_criteria
-    # }
-    #
-    # cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(mlp, columns, 10, 90, 31, df, network_dict)
+    network_dict = {'epochs': 38,
+                    'batch_size': 17,
+                    'shuffle': True,
+                    'validation_split': 0.25
+                    # 'callback': stop_criteria
+    }
 
-    # print("\vScript complete")
+    cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(mlp, columns, 10, 90, 31, df, network_dict)
+
+    print("\vScript complete")
