@@ -13,7 +13,7 @@ from keras.optimizers import SGD
 from sklearn.model_selection import GridSearchCV
 import matplotlib.dates as mdates
 
-def engineer_lagged_DNI_features(num_lagged_features, df):
+def create_lagged_DNI_features(num_lagged_features, df):
     """
     Creates new variables that have the Direct Normal [W/m^2] value
     from the time stamp X minutes ago.
@@ -147,7 +147,7 @@ def test_model(model, columns, iter, train_duration, test_duration, df, network=
                       batch_size=network['batch_size'],
                       shuffle=network['shuffle'],
                       validation_split=network['validation_split'],
-                      # callbacks=[network['callback']],
+                      callbacks=[network['callback']],
                       verbose=1)
 
             y_hat = model.predict(x_test)
@@ -261,7 +261,7 @@ if __name__ == "__main__":
 
     print("\nData successfully loaded")
 
-    df = engineer_lagged_DNI_features(15, df)
+    df = create_lagged_DNI_features(15, df)
 
     print("\n15 new features successfully engineered")
 
