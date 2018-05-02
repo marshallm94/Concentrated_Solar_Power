@@ -49,17 +49,138 @@ def create_lagged_DNI_features(num_lagged_features, df):
     return df
 
 
+def create_X_y2(df, columns, target, date, num_units, units, same=True, test=False):
+    """
+    Creates a subset of df where only dates equal to date are included
+
+    Parameters:
+        df: (pandas dataframe) Master dataframe
+        columns: (list) A list of strings specifying which columns
+                 should be included in the X matrix as predictive
+                 attributes
+        target: (str) Target column within df
+        date: (str) formate = YYYY-MM-DD
+        num_units: (int) Specifies the number of units to used
+        units: (str) Units that specify the time-period
+                     for the data set to
+                     option are:
+                        'years',
+                        'months',
+                        'weeks',
+                        'days',
+                        'hours'
+        same: (boolean - default = True) If True, units will go back incrementally.
+                example: if date = "2017-04-30", units = "months" and same = True, then the data set will be compsed of
+        test: (boolean - default = False) Specifies whether the train
+              or test set should be returned
+
+
+    Returns:
+        X: (Numpy array) A 2 dimensional numpy array with the values
+           of the columns specified
+        y: (Numpy array) A 1 dimensional numpy array with the values
+           of the target column
+    """
+    date_month = pd.to_datetime(date).month
+    date_year = pd.to_datetime(date).year
+    date_day = pd.to_datetime(date).day
+    DOY = set(df[df['Date'] == date]['DOY'])[0]
+
+
+    if units == 'years':
+        pass
+    elif units == 'months':
+        if same:
+            start_year = date_year - num_units
+
+            mask1 = df['Year'] >= start_year
+            mask2 = df['Year'] <= date_year
+            mask3 = df['Month'] == date_month
+
+            y = df[mask1 & mask2 & mask3].pop(target).values
+            X = df[mask1 & mask2 & mask3][columns].values
+            return X, y
+
+        if not same:
+            start_month = date_month - num_units
+
+            mask1 = df['Year'] == date_year
+            mask2 = df['Month'] >= start_month
+            mask3 = df['Month'] <= date_month
+
+            y = df[mask1 & mask2 & mask3].pop(target).values
+            X = df[mask1 & mask2 & mask3][columns].values
+            return X, y
+
+    elif units == 'weeks':
+        if same:
+            DOY_start = DOY - 3
+            DOY_stop = DOY + 3
+
+            start_year = date_year - num_units
+
+            mask1 = df['Year'] >= start_year
+            mask2 = df['Year'] <= date_year
+            mask3 = df["DOY"] >= DOY_start
+            mask4 = df['DOY'] <= DOY_stop
+
+            y = df[mask1 & mask2 & mask3 & mask4].pop(target).values
+            X = df[mask1 & mask2 & mask3 & mask4][columns].values
+            return X, y
+
+    elif units == 'days':
+        train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} days")
+        train_end = pd.to_datetime(day)
+        mask1 = df['final_date'] >= pd.to_datetime(train_start)
+        mask2 = df['final_date'] < pd.to_datetime(train_end)
+
+        y = df[mask1 & mask2].pop(target).values
+        X = df[mask1 & mask2][columns].values
+        return X, y
+
+    elif units == 'hours':
+        pass
+    else:
+        print("\nInvalid unit specification")
+        return None
+
+
+    y = df.pop('DNI_T_plus15').values
+
+    X = df[columns].values
+
+    return X, y
+
+
 def create_X_y(df, columns):
     """
     Creates a subset of df where only dates equal to date are included
 
     Parameters:
-        date: (str) The date for the beginning of the date range,
-                    in YYYY-MM-DD
-        df: (pandas dataframe)
+        df: (pandas dataframe) Master dataframe
+        columns: (list) A list of strings specifying which columns
+                 should be included in the X matrix as predictive
+                 attributes
+        target: (str) Target column within df
+        date: (str) formate = YYYY-MM-DD
+        num_units: (int) Specifies the number of units to used
+        units: (str) Units that specify the time-period
+                     for the data set to
+                     option are:
+                        'years',
+                        'months',
+                        'weeks',
+                        'days',
+                        'hours'
+        same: (boolean - Default = True) If True, units will go back incrementally.
+                example: if date = "2017-04-30", units = "months" and same = True, then the data set will be compsed of
+
 
     Returns:
-        df: (pandas dataframe) A subset of df
+        X: (Numpy array) A 2 dimensional numpy array with the values
+           of the columns specified
+        y: (Numpy array) A 1 dimensional numpy array with the values
+           of the target column
     """
 
     y = df.pop('DNI_T_plus15').values
