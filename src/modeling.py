@@ -100,8 +100,8 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
             mask3 = df['Month'] == date.month
             mask4 = df['final_date'] < date
 
-            y = df[mask1 & mask2 & mask3 & mask4].pop(target).values
-            X = df[mask1 & mask2 & mask3 & mask4][columns].values
+            y = df[mask1 & mask2 & mask3 & mask4].pop(target)
+            X = df[mask1 & mask2 & mask3 & mask4][columns]
             return X, y
 
         if not same:
@@ -109,12 +109,12 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
                 start_month = date_dt.month + 12 - num_units
                 start_date = date_dt.replace(month=start_month)
                 start_date = pd.to_datetime(start_date)
-
+                print(start_date)
                 mask1 = df['final_date'] >= start_date
                 mask2 = df['final_date'] < date
 
-                y = df[mask1 & mask2].pop(target).values
-                X = df[mask1 & mask2][columns].values
+                y = df[mask1 & mask2].pop(target)
+                X = df[mask1 & mask2][columns]
                 return X, y
             else:
                 start_month = date_dt.month - num_units
@@ -124,8 +124,8 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
                 mask1 = df['final_date'] >= start_date
                 mask2 = df['final_date'] < date
 
-                y = df[mask1 & mask2].pop(target).values
-                X = df[mask1 & mask2][columns].values
+                y = df[mask1 & mask2].pop(target)
+                X = df[mask1 & mask2][columns]
                 return X, y
 
     elif units == 'weeks':

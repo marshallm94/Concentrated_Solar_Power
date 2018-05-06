@@ -1,5 +1,6 @@
 import sys, os
 import pandas as pd
+import numpy as np
 import unittest
 
 testdir = os.path.dirname(__file__)
@@ -26,21 +27,30 @@ class TestCreateXY(unittest.TestCase):
 
         test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='months', same=True)
 
-        mask = self.df['Year'] >= self.date.year - self.num_units
-        mask2 = self.df['Year'] <= self.date.year
-        mask3 = self.df['Month'] == self.date.month
-        mask4 = self.df['final_date'] < self.date
-        expected_y = self.df[mask & mask2 & mask3 & mask4][self.target].values
-        expected_x = self.df[mask & mask2 & mask3 & mask4][self.columns].values
-        print(expected_x.shape, expected_y.shape)
-        print(test_x.shape, test_y.shape)
-        self.assertEqual(test_x.shape, expected_x.shape)
+        expected_years_set = set([2006, 2007, 2008])
+        expected_months_set = set([8])
+        test_2008 = pd.date_range("2008-08-01", self.date_string).astype(str).ravel()
+        test_2007 = pd.date_range("2007-08-01", "2007-08-31").astype(str).ravel()
+        test_2006 = pd.date_range("2006-08-01", "2006-08-31").astype(str).ravel()
+        test_dates = np.hstack((np.hstack((test_2006, test_2007)), test_2008))
+        test_dates_set = set(test_dates)
+        test_dates_set.remove(self.date_string)
+
+        self.assertEqual(set(test_x['Year']), expected_years_set)
+        self.assertEqual(set(test_x['Month']), expected_months_set)
+        self.assertEqual(set(test_x['Date']), test_dates_set)
 
     def test_months_2_sameFalse(self):
 
         test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='months', same=False)
 
-                
+        test_dates = pd.date_range("2008-06-13", "2008-08-13").astype(str).ravel()
+
+        test_dates_set = set(test_dates)
+        test_dates_set.remove(self.date_string)
+        
+        self.assertEqual(set(test_x['Date'].values), test_dates_set)
+
 
 
 if __name__ == '__main__':
