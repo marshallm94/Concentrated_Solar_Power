@@ -3,3 +3,6 @@ data/ivanpah_measurements.csv
 data/ivanpah_measurements_modeling.csv
 dni_forecasting_review.pdf
 dni_forecasting_with_ann.pdf
+test/__pycache__/*
+test/.pytest_cache/*
+src/__pycache__/*

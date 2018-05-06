@@ -37,11 +37,11 @@ def build_neural_network(n_predictors=28, hidden_layer_neurons=8, hidden_layer_n
     model.add(Dense(units=hidden_layer_neurons,
                     input_dim=input_layer_neurons,
                     kernel_initializer='uniform',
-                    activation='linear'))
+                    activation='relu'))
 
     model.add(Dense(units=hidden_layer_neurons1,
                     kernel_initializer='uniform',
-                    activation='linear'))
+                    activation='relu'))
 
     model.add(Dense(units=1))
 
@@ -107,9 +107,6 @@ if __name__ == "__main__":
             'DNI_T_minus14',
             'DNI_T_minus15']
 
-    n_predictors = len(columns)
-    hidden_layer_neurons = [8, 12]
-
     seed = 3
     np.random.seed(seed)
 
@@ -117,41 +114,47 @@ if __name__ == "__main__":
         # Results:
             # Bach Size = 17
             # Epochs = 38
+            # kernel_initializer = 'uniform'
+            # activation = 'relu'
 
-    model = KerasRegressor(build_fn=build_neural_network, epochs=38, batch_size=17)
+    # model = KerasRegressor(build_fn=build_neural_network, epochs=38, batch_size=17)
+    #
+    # x = list(np.arange(17, 22, 1))
+    # x1 = list(np.arange(10, 15, 1))
+    #
+    # neural_net_grid_dict = {'hidden_layer_neurons': x,
+    #                         "hidden_layer_neurons1": x1}
+    #
+    # neural_net_grid = GridSearchCV(estimator=model,
+    #                                param_grid=neural_net_grid_dict,
+    #                                scoring='neg_mean_squared_error',
+    #                                verbose=1,
+    #                                n_jobs=-1,
+    #                                cv=3)
+    #
+    #
+    #
+    # mask = df['Date'] == np.random.choice(np.unique(df['Date']))
+    # X, y = create_X_y(df[mask], columns)
+    #
+    # grid_result = neural_net_grid.fit(X, y)
+    #
+    # print(f"\nBest Score: {grid_result.best_score_}")
+    # print(f"\nBest Parameters: {grid_result.best_params_}")
 
-    x = list(np.arange(10, 101, 10))
-    x1 = list(np.arange(10, 101, 10))
+    stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.00001)
 
-    neural_net_grid_dict = {'hidden_layer_neurons': x,
-                            "hidden_layer_neurons1": x1}
-
-    neural_net_grid = GridSearchCV(estimator=model,
-                                   param_grid=neural_net_grid_dict,
-                                   scoring='neg_mean_squared_error',
-                                   verbose=1,
-                                   n_jobs=-1,
-                                   cv=3)
-
-
-
-    mask = df['Date'] == np.random.choice(np.unique(df['Date']))
-    X, y = create_X_y(df[mask], columns)
-
-    grid_result = neural_net_grid.fit(X, y)
-
-    print(f"\nBest Score: {grid_result.best_score_}")
-    print(f"\nBest Parameters: {grid_result.best_params_}")
-    stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.001)
+    n_predictors = len(columns)
+    hidden_layer_neurons = [10, 40]
 
     network_dict = {'epochs': 38,
                     'batch_size': 17,
                     'shuffle': True,
                     'validation_split': 0.25,
-                    'callback': stop_criteria
+                    # 'callback': stop_criteria
     }
 
-    mlp = build_neural_network(len(columns), 50, 1)
+    mlp = build_neural_network(len(columns), hidden_layer_neurons[0], hidden_layer_neurons[1])
 
     cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(mlp, columns, 10, 90, 31, df, network_dict)
 

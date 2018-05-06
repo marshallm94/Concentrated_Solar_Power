@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
 from manipulation import get_master_df, plot_day
-import datetime
+from datetime import datetime
 from keras.models import Sequential
 from keras.layers.core import Activation, Dense
 from keras.objectives import MSE, MAE
@@ -12,6 +12,7 @@ from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
 from sklearn.model_selection import GridSearchCV
 import matplotlib.dates as mdates
+import random
 
 def create_lagged_DNI_features(num_lagged_features, df):
     """
@@ -49,7 +50,7 @@ def create_lagged_DNI_features(num_lagged_features, df):
     return df
 
 
-def create_X_y2(df, columns, target, date, num_units, units, same=True, test=False):
+def create_X_y2(df, columns, target, date, num_units, units, same=True):
     """
     Creates a subset of df where only dates equal to date are included
 
@@ -59,7 +60,7 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True, test=Fal
                  should be included in the X matrix as predictive
                  attributes
         target: (str) Target column within df
-        date: (str) formate = YYYY-MM-DD
+        date: (pandas._libs.tslib.Timestamp)
         num_units: (int) Specifies the number of units to used
         units: (str) Units that specify the time-period
                      for the data set to
@@ -69,11 +70,8 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True, test=Fal
                         'weeks',
                         'days',
                         'hours'
-        same: (boolean - default = True) If True, units will go back incrementally.
-                example: if date = "2017-04-30", units = "months" and same = True, then the data set will be compsed of
-        test: (boolean - default = False) Specifies whether the train
-              or test set should be returned
-
+        same: (boolean - default = True) If True, units will go back incrementally by years.
+                example: if date = "2008-08-13", num_units = 2, units = "months" and same = True, then the data set will be composed of data from August (8th month) of 2007 and 2006.
 
     Returns:
         X: (Numpy array) A 2 dimensional numpy array with the values
@@ -81,55 +79,10 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True, test=Fal
         y: (Numpy array) A 1 dimensional numpy array with the values
            of the target column
     """
-    date_month = pd.to_datetime(date).month
-    date_year = pd.to_datetime(date).year
-    date_day = pd.to_datetime(date).day
-    DOY = set(df[df['Date'] == date]['DOY'])[0]
-
+    date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
 
     if units == 'years':
-        pass
-    elif units == 'months':
-        if same:
-            start_year = date_year - num_units
-
-            mask1 = df['Year'] >= start_year
-            mask2 = df['Year'] <= date_year
-            mask3 = df['Month'] == date_month
-
-            y = df[mask1 & mask2 & mask3].pop(target).values
-            X = df[mask1 & mask2 & mask3][columns].values
-            return X, y
-
-        if not same:
-            start_month = date_month - num_units
-
-            mask1 = df['Year'] == date_year
-            mask2 = df['Month'] >= start_month
-            mask3 = df['Month'] <= date_month
-
-            y = df[mask1 & mask2 & mask3].pop(target).values
-            X = df[mask1 & mask2 & mask3][columns].values
-            return X, y
-
-    elif units == 'weeks':
-        if same:
-            DOY_start = DOY - 3
-            DOY_stop = DOY + 3
-
-            start_year = date_year - num_units
-
-            mask1 = df['Year'] >= start_year
-            mask2 = df['Year'] <= date_year
-            mask3 = df["DOY"] >= DOY_start
-            mask4 = df['DOY'] <= DOY_stop
-
-            y = df[mask1 & mask2 & mask3 & mask4].pop(target).values
-            X = df[mask1 & mask2 & mask3 & mask4][columns].values
-            return X, y
-
-    elif units == 'days':
-        train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} days")
+        train_start = pd.to_datetime(date) + pd.Timedelta("-{} days".format(num_units * 365))
         train_end = pd.to_datetime(day)
         mask1 = df['final_date'] >= pd.to_datetime(train_start)
         mask2 = df['final_date'] < pd.to_datetime(train_end)
@@ -138,18 +91,114 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True, test=Fal
         X = df[mask1 & mask2][columns].values
         return X, y
 
+    elif units == 'months':
+        if same:
+            start_year = date.year - num_units
+
+            mask1 = df['Year'] >= start_year
+            mask2 = df['Year'] <= date.year
+            mask3 = df['Month'] == date.month
+            mask4 = df['final_date'] < date
+
+            y = df[mask1 & mask2 & mask3 & mask4].pop(target).values
+            X = df[mask1 & mask2 & mask3 & mask4][columns].values
+            return X, y
+
+        if not same:
+            if date_dt.month - num_units < 1:
+                start_month = date_dt.month + 12 - num_units
+                start_date = date_dt.replace(month=start_month)
+                start_date = pd.to_datetime(start_date)
+
+                mask1 = df['final_date'] >= start_date
+                mask2 = df['final_date'] < date
+
+                y = df[mask1 & mask2].pop(target).values
+                X = df[mask1 & mask2][columns].values
+                return X, y
+            else:
+                start_month = date_dt.month - num_units
+                start_date = date_dt.replace(month=start_month)
+                start_date = pd.to_datetime(start_date)
+
+                mask1 = df['final_date'] >= start_date
+                mask2 = df['final_date'] < date
+
+                y = df[mask1 & mask2].pop(target).values
+                X = df[mask1 & mask2][columns].values
+                return X, y
+
+    elif units == 'weeks':
+        if same:
+            DOY_start = DOY - 3
+            DOY_stop = DOY + 3
+
+            start_year = date.year - num_units
+
+            mask1 = df['Year'] >= start_year
+            mask2 = df['Year'] <= date.year
+            mask3 = df["DOY"] >= DOY_start
+            mask4 = df['DOY'] <= DOY_stop
+
+            y = df[mask1 & mask2 & mask3 & mask4].pop(target).values
+            X = df[mask1 & mask2 & mask3 & mask4][columns].values
+            return X, y
+
+        if not same:
+            train_start = pd.to_datetime(date) + pd.Timedelta("-{} days".format(num_units * 7))
+            train_end = pd.to_datetime(day)
+            mask1 = df['final_date'] >= pd.to_datetime(train_start)
+            mask2 = df['final_date'] < pd.to_datetime(train_end)
+
+            y = df[mask1 & mask2].pop(target).values
+            X = df[mask1 & mask2][columns].values
+            return X, y
+
+    elif units == 'days':
+        if same:
+            start_year = date.year - num_units
+
+            mask1 = df["DOY"] == DOY
+            mask2 = df['Year'] >= start_year
+            mask3 = df['Year'] <= date.year
+
+            y = df[mask1 & mask2 & mask3].pop(target).values
+            X = df[mask1 & mask2 & mask3][columns].values
+            return X, y
+
+        if not same:
+            train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} days")
+            train_end = pd.to_datetime(day)
+            mask1 = df['final_date'] >= pd.to_datetime(train_start)
+            mask2 = df['final_date'] < pd.to_datetime(train_end)
+
+            y = df[mask1 & mask2].pop(target).values
+            X = df[mask1 & mask2][columns].values
+            return X, y
+
     elif units == 'hours':
-        pass
+        if same:
+
+            train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} hours")
+            train_end = pd.to_datetime(day)
+            mask1 = df['final_date'] >= pd.to_datetime(train_start)
+            mask2 = df['final_date'] < pd.to_datetime(train_end)
+
+            y = df[mask1 & mask2].pop(target).values
+            X = df[mask1 & mask2][columns].values
+            return X, y
+        if not same:
+            train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} hours")
+            train_end = pd.to_datetime(day)
+            mask1 = df['final_date'] >= pd.to_datetime(train_start)
+            mask2 = df['final_date'] < pd.to_datetime(train_end)
+
+            y = df[mask1 & mask2].pop(target).values
+            X = df[mask1 & mask2][columns].values
+            return X, y
     else:
         print("\nInvalid unit specification")
         return None
-
-
-    y = df.pop('DNI_T_plus15').values
-
-    X = df[columns].values
-
-    return X, y
 
 
 def create_X_y(df, columns):
@@ -268,7 +317,7 @@ def test_model(model, columns, iter, train_duration, test_duration, df, network=
                       batch_size=network['batch_size'],
                       shuffle=network['shuffle'],
                       validation_split=network['validation_split'],
-                      callbacks=[network['callback']],
+                      # callbacks=[network['callback']],
                       verbose=1)
 
             y_hat = model.predict(x_test)
@@ -361,6 +410,7 @@ def build_neural_network(n_predictors, hidden_layer_neurons):
 
     return model
 
+
 if __name__ == "__main__":
 
     df = get_master_df("../data/ivanpah_measurements.csv")
@@ -418,85 +468,86 @@ if __name__ == "__main__":
             'DNI_T_minus14',
             'DNI_T_minus15']
 
+    dates = df['final_date']
 ################################################################################
 ################################# BASE MODEL ###################################
 ################################################################################
 
-    rf = RandomForestRegressor()
-
-    print("\nStarting cross validation...\n")
-
-    cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(rf, columns, 10, 90, 31, df)
-
-    print("\nCross validation complete.")
-
-    base_model_evaluation = zip(cv_train_periods, cv_test_periods, cv_errors, pm_errors)
-    base_model_overview = []
-    for triplet in base_model_evaluation:
-        base_model_overview.append([str(triplet[0][0]), str(triplet[0][1]), str(triplet[1][0]), str(triplet[1][1]), triplet[2], triplet[3]])
-    base_model_df = pd.DataFrame(base_model_overview, columns=['Train_Start','Train_End','Test_Start','Test_End','Test_Error','Persistent_Model_error'])
-
-    # Persistence Model
-    np.mean(np.sqrt(mean_squared_error(df['DNI_T_plus15'].values, df['Direct Normal [W/m^2]'].values)))
-
-    # create display data
-    mask = df['Date'] == '2015-06-11'
-    mask2 = df['Hour'] > 10
-    mask3 = df['Hour'] <= 11
-    display_data = df[mask & mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
-    display_data = display_data.set_index(np.arange(display_data.shape[0]))
-
-    # used in Predicting_DNI.md
-    top = display_data.loc[:6,:]
-    bottom = display_data.loc[15:21,]
-    final_display = pd.concat([top, bottom])
-
-    # plot CV errors
-    error_dict = {"Random Forest Error": base_model_df["Test_Error"].values,
-                  "Persistence Model Error": base_model_df["Persistent_Model_error"].values
-    }
-    error_plot(error_dict, ['red','orange'], "Random Forest vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", "../images/cross_validation_plot.png")
-
-################################################################################
-############################### NEURAL NETWORK #################################
-################################################################################
-
-    np.random.seed(5)
-
-    mlp = build_neural_network(len(columns), [8, 12])
-
-    stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.005)
-
-    network_dict = {'epochs': 5,
-                    'batch_size': 250,
-                    'shuffle': True,
-                    'validation_split': 0.25
-                    # 'callback': stop_criteria
-    }
-
-    cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(mlp, columns, 10, 90, 31, df, network_dict)
-
-
-    # plot Neural Network CV errors
-    error_dict = {"Neural Network Error": cv_errors,
-                  "Persistence Model Error": pm_errors
-    }
-
-    error_plot(error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error.png')
-
-    # plot sample day
-    np.random.seed(1)
-
-    day = np.random.choice(np.unique(df['Date']))
-
-    mask = df['Date'] == day
-
-    x_example = df[mask]
-
-    y_true = df[mask]['DNI_T_plus15']
-
-    y_hat = mlp.predict(x_example[columns])
-
-    x_example['Neural_net_preds'] = y_hat
-
-    plot_day(day, [6, 16], ['DNI_T_plus15','Neural_net_preds'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", x_example, "../images/example_day.png")
+#     rf = RandomForestRegressor()
+#
+#     print("\nStarting cross validation...\n")
+#
+#     cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(rf, columns, 10, 90, 31, df)
+#
+#     print("\nCross validation complete.")
+#
+#     base_model_evaluation = zip(cv_train_periods, cv_test_periods, cv_errors, pm_errors)
+#     base_model_overview = []
+#     for triplet in base_model_evaluation:
+#         base_model_overview.append([str(triplet[0][0]), str(triplet[0][1]), str(triplet[1][0]), str(triplet[1][1]), triplet[2], triplet[3]])
+#     base_model_df = pd.DataFrame(base_model_overview, columns=['Train_Start','Train_End','Test_Start','Test_End','Test_Error','Persistent_Model_error'])
+#
+#     # Persistence Model
+#     np.mean(np.sqrt(mean_squared_error(df['DNI_T_plus15'].values, df['Direct Normal [W/m^2]'].values)))
+#
+#     # create display data
+#     mask = df['Date'] == '2015-06-11'
+#     mask2 = df['Hour'] > 10
+#     mask3 = df['Hour'] <= 11
+#     display_data = df[mask & mask2 & mask3][['final_date','Direct Normal [W/m^2]','DNI_T_plus15']].head(61)
+#     display_data = display_data.set_index(np.arange(display_data.shape[0]))
+#
+#     # used in Predicting_DNI.md
+#     top = display_data.loc[:6,:]
+#     bottom = display_data.loc[15:21,]
+#     final_display = pd.concat([top, bottom])
+#
+#     # plot CV errors
+#     error_dict = {"Random Forest Error": base_model_df["Test_Error"].values,
+#                   "Persistence Model Error": base_model_df["Persistent_Model_error"].values
+#     }
+#     error_plot(error_dict, ['red','orange'], "Random Forest vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", "../images/cross_validation_plot.png")
+#
+# ################################################################################
+# ############################### NEURAL NETWORK #################################
+# ################################################################################
+#
+#     np.random.seed(5)
+#
+#     mlp = build_neural_network(len(columns), [8, 12])
+#
+#     stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.005)
+#
+#     network_dict = {'epochs': 5,
+#                     'batch_size': 250,
+#                     'shuffle': True,
+#                     'validation_split': 0.25
+#                     # 'callback': stop_criteria
+#     }
+#
+#     cv_errors, cv_test_periods, cv_train_periods, pm_errors = test_model(mlp, columns, 10, 90, 31, df, network_dict)
+#
+#
+#     # plot Neural Network CV errors
+#     error_dict = {"Neural Network Error": cv_errors,
+#                   "Persistence Model Error": pm_errors
+#     }
+#
+#     error_plot(error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error.png')
+#
+#     # plot sample day
+#     np.random.seed(1)
+#
+#     day = np.random.choice(np.unique(df['Date']))
+#
+#     mask = df['Date'] == day
+#
+#     x_example = df[mask]
+#
+#     y_true = df[mask]['DNI_T_plus15']
+#
+#     y_hat = mlp.predict(x_example[columns])
+#
+#     x_example['Neural_net_preds'] = y_hat
+#
+#     plot_day(day, [6, 16], ['DNI_T_plus15','Neural_net_preds'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", x_example, "../images/example_day.png")
