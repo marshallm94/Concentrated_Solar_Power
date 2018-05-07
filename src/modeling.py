@@ -107,7 +107,8 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
         if not same:
             if date_dt.month - num_units < 1:
                 start_month = date_dt.month + 12 - num_units
-                start_date = date_dt.replace(month=start_month)
+                start_year = date.year - 1
+                start_date = date_dt.replace(month=start_month, year=start_year)
                 start_date = pd.to_datetime(start_date)
                 print(start_date)
                 mask1 = df['final_date'] >= start_date
@@ -130,7 +131,7 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
 
     elif units == 'weeks':
         if same:
-            DOY_start = DOY - 3
+            DOY_start = date.dayof - 3
             DOY_stop = DOY + 3
 
             start_year = date.year - num_units

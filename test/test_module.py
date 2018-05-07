@@ -48,10 +48,23 @@ class TestCreateXY(unittest.TestCase):
 
         test_dates_set = set(test_dates)
         test_dates_set.remove(self.date_string)
-        
+
         self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
 
+    def test_months_2_sameFalse_EdgeCase(self):
+
+        date_string = "2013-01-15"
+        date = pd.to_datetime(date_string)
+        num_units = 3
+
+        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=num_units, units='months', same=False)
+
+        test_dates = pd.date_range("2012-10-15", "2013-01-14").astype(str).ravel()
+
+        test_dates_set = set(test_dates)
+
+        self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
 if __name__ == '__main__':
     unittest.main()
