@@ -93,6 +93,21 @@ class TestCreateXY(unittest.TestCase):
 
         self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
+    def test_weeks_2_sameTrue_EdgeCase2(self):
+        date = pd.to_datetime("2009-12-31")
+
+        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=True)
+
+        test_07_08 = pd.date_range("2007-12-28", "2008-01-03").astype(str).ravel()
+        test_08_09 = pd.date_range("2008-12-28", "2009-01-03").astype(str).ravel()
+        test_2009 = pd.date_range("2009-12-28", "2009-12-30").astype(str).ravel()
+        test_dates = np.hstack((np.hstack((test_07_08, test_08_09)), test_2009))
+
+        test_dates_set = set(test_dates)
+
+        self.assertEqual(set(test_x['Date'].values), test_dates_set)
+
+
 
 if __name__ == '__main__':
     unittest.main()

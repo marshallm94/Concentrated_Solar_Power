@@ -147,6 +147,19 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
                             new_day = day.replace(year=end_year)
                             days2.append(new_day)
                 days2 = [datetime.strftime(i, "%Y-%m-%d") for i in days2]
+
+            elif start_date.year > end_date.year:
+                years = [(year, year + 1) for year in range(start_date.year - num_units, end_date.year)]
+                days2 = []
+                for start_year, end_year in years:
+                    for day in days:
+                        if day.month == 12:
+                            new_day = day.replace(year=start_year)
+                            days2.append(new_day)
+                        else:
+                            new_day = day.replace(year=end_year)
+                            days2.append(new_day)
+                days2 = [datetime.strftime(i, "%Y-%m-%d") for i in days2]
             else:
                 years = [year for year in range(date.year - num_units, date.year)]
                 for year in years:
@@ -162,7 +175,6 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
                 frames.append(frame)
             final = pd.concat(frames)
             final = final[final['final_date'] < date]
-            print(set(final['Date'].values))
             y = final.pop(target)
             X = final[columns]
             return X, y
