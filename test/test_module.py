@@ -22,7 +22,7 @@ class TestCreateXY(unittest.TestCase):
         self.target = 'DNI_T_minus15'
         self.num_units = 2
 
-    
+
     def test_months_2_sameTrue(self):
 
         test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='months', same=True)
@@ -79,6 +79,19 @@ class TestCreateXY(unittest.TestCase):
 
         self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
+    def test_weeks_2_sameTrue_EdgeCase(self):
+        date = pd.to_datetime("2009-01-01")
+
+        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=True)
+
+        test_2006_07 = pd.date_range("2006-12-29", "2007-01-04").astype(str).ravel()
+        test_2007_08 = pd.date_range("2007-12-29", "2008-01-04").astype(str).ravel()
+        test_2008 = pd.date_range("2008-12-29", "2008-12-31").astype(str).ravel()
+        test_dates = np.hstack((np.hstack((test_2006_07, test_2007_08)), test_2008))
+
+        test_dates_set = set(test_dates)
+
+        self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
 
 if __name__ == '__main__':

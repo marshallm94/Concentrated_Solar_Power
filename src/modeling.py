@@ -131,35 +131,41 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
 
     elif units == 'weeks':
         if same:
-            if (date + pd.Timedelta("+3 days")).year > date.year:
-                start_date = date + pd.Timedelta("+3 days")
+            start_date = date + pd.Timedelta("-3 days")
+            end_date = date + pd.Timedelta("+3 days")
+            days = list(pd.date_range(start_date, end_date))
 
-            elif (date + pd.Timedelta("-3 days")).year < date.year:
-                pass
-
+            if start_date.year < end_date.year:
+                years = [(year, year + 1) for year in range(start_date.year - num_units, end_date.year)]
+                days2 = []
+                for start_year, end_year in years:
+                    for day in days:
+                        if day.month == 12:
+                            new_day = day.replace(year=start_year)
+                            days2.append(new_day)
+                        else:
+                            new_day = day.replace(year=end_year)
+                            days2.append(new_day)
+                days2 = [datetime.strftime(i, "%Y-%m-%d") for i in days2]
             else:
-                start_date = date + pd.Timedelta("-3 days")
-                end_date = date + pd.Timedelta("+3 days")
-                days = list(pd.date_range(start_date, end_date))
-                start_year = start_date.year - num_units
-                end_year = end_date.year - num_units
                 years = [year for year in range(date.year - num_units, date.year)]
-                for x, year in enumerate(years):
+                for year in years:
                     start_date = (date + pd.Timedelta("-3 days")).replace(year=year)
                     end_date = (date + pd.Timedelta("+3 days")).replace(year=year)
                     date_range = pd.date_range(start_date, end_date)
                     for day in date_range:
                         days.append(day)
                 days2 = [datetime.strftime(i, "%Y-%m-%d") for i in days]
-                frames = []
-                for day in days2:
-                    frame = df[df['Date'] == day]
-                    frames.append(frame)
-                final = pd.concat(frames)
-                final = final[final['final_date'] < date]
-                y = final.pop(target)
-                X = final[columns]
-                return X, y
+            frames = []
+            for day in days2:
+                frame = df[df['Date'] == day]
+                frames.append(frame)
+            final = pd.concat(frames)
+            final = final[final['final_date'] < date]
+            print(set(final['Date'].values))
+            y = final.pop(target)
+            X = final[columns]
+            return X, y
 
         if not same:
             train_start = pd.to_datetime(date) + pd.Timedelta("-{} days".format(num_units * 7))
