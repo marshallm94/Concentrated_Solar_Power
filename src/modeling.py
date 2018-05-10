@@ -82,13 +82,13 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
     date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
 
     if units == 'years':
-        train_start = pd.to_datetime(date) + pd.Timedelta("-{} days".format(num_units * 365))
-        train_end = pd.to_datetime(day)
-        mask1 = df['final_date'] >= pd.to_datetime(train_start)
-        mask2 = df['final_date'] < pd.to_datetime(train_end)
+        train_start = date.replace(year=date.year - num_units)
 
-        y = df[mask1 & mask2].pop(target).values
-        X = df[mask1 & mask2][columns].values
+        mask1 = df['final_date'] >= pd.to_datetime(train_start)
+        mask2 = df['final_date'] < date
+
+        y = df[mask1 & mask2].pop(target)
+        X = df[mask1 & mask2][columns]
         return X, y
 
     elif units == 'months':
@@ -191,37 +191,46 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
 
     elif units == 'days':
         if same:
-            start_year = date.year - num_units
 
-            mask1 = df["DOY"] == DOY
-            mask2 = df['Year'] >= start_year
-            mask3 = df['Year'] <= date.year
+            dates = []
+            for year in range(1, num_units + 1):
+                new_date = date.replace(year=date.year - year)
+                dates.append(new_date.strftime("%Y-%m-%d"))
 
-            y = df[mask1 & mask2 & mask3].pop(target).values
-            X = df[mask1 & mask2 & mask3][columns].values
+            frames = []
+            for day in dates:
+                frame = df[df['Date'] == day]
+                frames.append(frame)
+
+            final = pd.concat(frames)
+            print(final.shape)
+            final = final[final['final_date'] < date]
+            print(final.shape)
+
+            y = final.pop(target)
+            X = final[columns]
             return X, y
 
         if not same:
-            train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} days")
-            train_end = pd.to_datetime(day)
-            mask1 = df['final_date'] >= pd.to_datetime(train_start)
-            mask2 = df['final_date'] < pd.to_datetime(train_end)
+            train_start = date + pd.Timedelta(f"-{num_units} days")
+            mask1 = df['final_date'] >= train_start
+            mask2 = df['final_date'] < date
 
-            y = df[mask1 & mask2].pop(target).values
-            X = df[mask1 & mask2][columns].values
+            y = df[mask1 & mask2].pop(target)
+            X = df[mask1 & mask2][columns]
             return X, y
 
     elif units == 'hours':
         if same:
 
-            train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} hours")
-            train_end = pd.to_datetime(day)
+            train_start = date + pd.Timedelta(f"-{num_units} hours")
             mask1 = df['final_date'] >= pd.to_datetime(train_start)
-            mask2 = df['final_date'] < pd.to_datetime(train_end)
+            mask2 = df['final_date'] < pd.to_datetime(date)
 
-            y = df[mask1 & mask2].pop(target).values
-            X = df[mask1 & mask2][columns].values
+            y = df[mask1 & mask2].pop(target)
+            X = df[mask1 & mask2][columns]
             return X, y
+
         if not same:
             train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} hours")
             train_end = pd.to_datetime(day)
