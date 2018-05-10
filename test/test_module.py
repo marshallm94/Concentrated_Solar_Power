@@ -107,7 +107,27 @@ class TestCreateXY(unittest.TestCase):
 
         self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
+    def test_weeks_2_sameFalse(self):
 
+        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='weeks', same=False)
+
+        start = self.date + pd.Timedelta("-14 days")
+        expected_dates = pd.date_range(start, self.date).astype(str).ravel()
+        expected_dates = set(expected_dates[:-1])
+
+        self.assertEqual(set(test_x['Date'].values), expected_dates)
+
+    def test_weeks_2_sameFalse_EdgeCase(self):
+        date = pd.to_datetime("2007-01-05")
+
+        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=False)
+
+
+        start = date + pd.Timedelta("-14 days")
+        expected_dates = pd.date_range(start, date).astype(str).ravel()
+        expected_dates = set(expected_dates[:-1])
+
+        self.assertEqual(set(test_x['Date'].values), expected_dates)
 
 if __name__ == '__main__':
     unittest.main()
