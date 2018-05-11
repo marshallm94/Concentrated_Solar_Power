@@ -158,6 +158,7 @@ class TestCreateXY(unittest.TestCase):
         test_dates = pd.date_range(start_date, end_date).astype(str).ravel()
 
         test_dates_set = set(test_dates)
+        print(set(test_x['Date'].values))
 
         self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
@@ -167,6 +168,15 @@ class TestCreateXY(unittest.TestCase):
         test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='years', same=False)
 
         self.assertIsNone(test_x)
+
+    def test_hours_15(self):
+        num_units = 15
+
+        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=num_units, units='hours', same=False)
+
+        hours_set = set([i for i in range(9, 24)])
+
+        self.assertEqual(set(test_x['Hour'].values), hours_set)
 
 if __name__ == '__main__':
     unittest.main()

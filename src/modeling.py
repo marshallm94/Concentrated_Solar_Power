@@ -52,7 +52,7 @@ def create_lagged_DNI_features(num_lagged_features, df):
 
 def create_X_y2(df, columns, target, date, num_units, units, same=True):
     """
-    Creates a subset of df where only dates equal to date are included
+    Creates a subset of df for training model
 
     Parameters:
         df: (pandas dataframe) Master dataframe
@@ -83,7 +83,7 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
 
     if units == 'years':
         available_years = set(df['Year'])
-        if date.replace(year=date.year - num_units) not in available_years:
+        if date.year - num_units not in available_years:
             print("\nStart year not in data set")
             return None, None
         else:
@@ -226,28 +226,15 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
             return X, y
 
     elif units == 'hours':
-        if same:
 
-            train_start = date + pd.Timedelta(f"-{num_units} hours")
-            mask1 = df['final_date'] >= pd.to_datetime(train_start)
-            mask2 = df['final_date'] < pd.to_datetime(date)
+        start = date + pd.Timedelta(f"-{num_units} hours")
+        mask1 = df['final_date'] >= pd.to_datetime(start)
+        mask2 = df['final_date'] < pd.to_datetime(date)
 
-            y = df[mask1 & mask2].pop(target)
-            X = df[mask1 & mask2][columns]
-            return X, y
+        y = df[mask1 & mask2].pop(target)
+        X = df[mask1 & mask2][columns]
+        return X, y
 
-        if not same:
-            train_start = pd.to_datetime(date) + pd.Timedelta(f"-{num_units} hours")
-            train_end = pd.to_datetime(day)
-            mask1 = df['final_date'] >= pd.to_datetime(train_start)
-            mask2 = df['final_date'] < pd.to_datetime(train_end)
-
-            y = df[mask1 & mask2].pop(target).values
-            X = df[mask1 & mask2][columns].values
-            return X, y
-    else:
-        print("\nInvalid unit specification")
-        return None
 
 
 def create_X_y(df, columns):
