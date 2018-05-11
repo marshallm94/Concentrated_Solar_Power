@@ -82,14 +82,19 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
     date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
 
     if units == 'years':
-        train_start = date.replace(year=date.year - num_units)
+        available_years = set(df['Year'])
+        if date.replace(year=date.year - num_units) not in available_years:
+            print("\nStart year not in data set")
+            return None, None
+        else:
+            train_start = date.replace(year=date.year - num_units)
 
-        mask1 = df['final_date'] >= pd.to_datetime(train_start)
-        mask2 = df['final_date'] < date
+            mask1 = df['final_date'] >= pd.to_datetime(train_start)
+            mask2 = df['final_date'] < date
 
-        y = df[mask1 & mask2].pop(target)
-        X = df[mask1 & mask2][columns]
-        return X, y
+            y = df[mask1 & mask2].pop(target)
+            X = df[mask1 & mask2][columns]
+            return X, y
 
     elif units == 'months':
         if same:
