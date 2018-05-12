@@ -572,7 +572,7 @@ if __name__ == "__main__":
     error_plot(error_dict, ['lightblue','orange'], "Neural Network vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", '../images/neural_network_cv_error.png')
 
     # plot sample day
-    np.random.seed(1)
+    np.random.seed(8)
 
     day = np.random.choice(np.unique(df['Date']))
 
