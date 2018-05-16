@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import calendar
+import random
 from manipulation import get_master_df, plot_day
 from datetime import datetime
 from modeling import build_neural_network
@@ -228,7 +229,7 @@ def create_lagged_DNI_features(num_lagged_features, df):
     return df
 
 
-def get_random_test_dates(seed, year, num_days_per_month):
+def get_random_test_dates(seed, year, hour_range, num_days_per_month):
     """
     Returns two random test dates per month within the given year.
 
@@ -236,6 +237,8 @@ def get_random_test_dates(seed, year, num_days_per_month):
     ----------
     seed: (int) Used for setting the random seed.
     year: (int) The year from which you would like to select dates.
+    hour_range: (tuple) The hour range (from 0 to 23) from which a random
+        hour will be chosen.
     num_days_per_month: (int) The number of random days to select per month in
         the year specified.
 
@@ -251,34 +254,14 @@ def get_random_test_dates(seed, year, num_days_per_month):
         end_date = f"{year}-{month}-{num_days}"
         days = pd.date_range(start_date, end_date).astype(str).ravel()
         test_dates.extend(np.random.choice(days, num_days_per_month))
-    return [pd.to_datetime(day) for day in test_dates]
 
+    out = []
+    for day in test_dates:
+        date = pd.to_datetime(day)
+        new_date = date.replace(hour=random.choice(range(hour_range[0], hour_range[1] + 1)))
+        out.append(new_date)
+    return out
 
-def train_mlp(X, y, model=mlp, NN_dict=NN_dict):
-    """
-    Trains a Muli-Layer Perceptron and returns the training RMSE.
-
-    Parameters:
-    ----------
-    X: (numpy array) 2 Dimensional matrix
-    y: (numpy array) response values for training data
-    model: (Keras Neural Network Model)
-    NN_dict: (dict) Neural Network training criteria
-
-    Returns:
-    -------
-    RMSE: (float) Training RMSE
-    """
-    model.fit(X,
-              y,
-              epochs=NN_dict['epochs'],
-              batch_size=NN_dict['batch_size'],
-              shuffle=NN_dict['shuffle'],
-              validation_split=NN_dict['validation_split'],
-              # callbacks=[NN_dict['callback']],
-              verbose=1)
-    y_hat = model.predict(X)
-    return np.sqrt(mean_squared_error(y, y_hat))
 
 
 columns = ['Year',
@@ -310,17 +293,43 @@ columns = ['Year',
         'DNI_T_minus14',
         'DNI_T_minus15']
 
-stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.00001)
+# stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.00001)
 
 hidden_layer_neurons = [10, 40]
 
 NN_dict = {'epochs': 38,
            'batch_size': 17,
            'shuffle': True,
-           'validation_split': 0.25,
-           'callback': stop_criteria
+           'validation_split': 0.2,
+           # 'callback': stop_criteria
 }
 
 mlp = build_neural_network(len(columns), hidden_layer_neurons)
 
-test_dates = get_random_test_dates(5, 2017, 2)
+test_dates = get_random_test_dates(5, 2017, (10, 18), 2)
+
+def train_mlp(X, y, model=mlp, NN_dict=NN_dict):
+    """
+    Trains a Muli-Layer Perceptron and returns the training RMSE.
+
+    Parameters:
+    ----------
+    X: (numpy array) 2 Dimensional matrix
+    y: (numpy array) response values for training data
+    model: (Keras Neural Network Model)
+    NN_dict: (dict) Neural Network training criteria
+
+    Returns:
+    -------
+    RMSE: (float) Training RMSE
+    """
+    model.fit(X,
+              y,
+              epochs=NN_dict['epochs'],
+              batch_size=NN_dict['batch_size'],
+              shuffle=NN_dict['shuffle'],
+              validation_split=NN_dict['validation_split'],
+              # callbacks=[NN_dict['callback']],
+              verbose=1)
+    y_hat = model.predict(X)
+    # return np.sqrt(mean_squared_error(y, y_hat))
