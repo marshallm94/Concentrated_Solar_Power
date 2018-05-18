@@ -7,7 +7,7 @@ testdir = os.path.dirname(__file__)
 srcdir = '../src/'
 sys.path.insert(0, os.path.abspath(os.path.join(testdir, srcdir)))
 
-from modeling import create_X_y2, create_lagged_DNI_features
+from modeling import create_X_y, create_lagged_DNI_features
 from manipulation import get_master_df
 
 class TestCreateXY(unittest.TestCase):
@@ -25,7 +25,7 @@ class TestCreateXY(unittest.TestCase):
 
     def test_months_2_sameTrue(self):
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='months', same=True)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='months', same=True)
 
         expected_years_set = set([2006, 2007, 2008])
         expected_months_set = set([8])
@@ -42,7 +42,7 @@ class TestCreateXY(unittest.TestCase):
 
     def test_months_2_sameFalse(self):
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='months', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='months', same=False)
 
         test_dates = pd.date_range("2008-06-13", "2008-08-13").astype(str).ravel()
 
@@ -58,7 +58,7 @@ class TestCreateXY(unittest.TestCase):
         date = pd.to_datetime(date_string)
         num_units = 3
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=num_units, units='months', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=date, num_units=num_units, units='months', same=False)
 
         test_dates = pd.date_range("2012-10-15", "2013-01-14").astype(str).ravel()
 
@@ -68,7 +68,7 @@ class TestCreateXY(unittest.TestCase):
 
     def test_weeks_2_sameTrue(self):
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='weeks', same=True)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='weeks', same=True)
 
         test_2006 = pd.date_range("2006-08-10", "2006-08-16").astype(str).ravel()
         test_2007 = pd.date_range("2007-08-10", "2007-08-16").astype(str).ravel()
@@ -82,7 +82,7 @@ class TestCreateXY(unittest.TestCase):
     def test_weeks_2_sameTrue_EdgeCase(self):
         date = pd.to_datetime("2009-01-01")
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=True)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=True)
 
         test_2006_07 = pd.date_range("2006-12-29", "2007-01-04").astype(str).ravel()
         test_2007_08 = pd.date_range("2007-12-29", "2008-01-04").astype(str).ravel()
@@ -96,7 +96,7 @@ class TestCreateXY(unittest.TestCase):
     def test_weeks_2_sameTrue_EdgeCase2(self):
         date = pd.to_datetime("2009-12-31")
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=True)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=True)
 
         test_07_08 = pd.date_range("2007-12-28", "2008-01-03").astype(str).ravel()
         test_08_09 = pd.date_range("2008-12-28", "2009-01-03").astype(str).ravel()
@@ -109,7 +109,7 @@ class TestCreateXY(unittest.TestCase):
 
     def test_weeks_2_sameFalse(self):
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='weeks', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='weeks', same=False)
 
         start = self.date + pd.Timedelta("-14 days")
         expected_dates = pd.date_range(start, self.date).astype(str).ravel()
@@ -120,7 +120,7 @@ class TestCreateXY(unittest.TestCase):
     def test_weeks_2_sameFalse_EdgeCase(self):
         date = pd.to_datetime("2007-01-05")
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='weeks', same=False)
 
 
         start = date + pd.Timedelta("-14 days")
@@ -131,7 +131,7 @@ class TestCreateXY(unittest.TestCase):
 
     def test_days_2_sameTrue(self):
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=True)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=True)
 
         test_dates_set = set(['2007-08-13', '2006-08-13'])
 
@@ -141,7 +141,7 @@ class TestCreateXY(unittest.TestCase):
 
     def test_days_2_sameFalse(self):
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=False)
 
         test_dates_set =  set(["2008-08-12", "2008-08-11"])
 
@@ -149,7 +149,7 @@ class TestCreateXY(unittest.TestCase):
 
     def test_years_2(self):
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='years', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='years', same=False)
 
         start_date = self.date.replace(year=self.date.year - self.num_units)
         end_date = self.date + pd.Timedelta("-1 days")
@@ -165,14 +165,14 @@ class TestCreateXY(unittest.TestCase):
     def test_years_2_EdgeCase(self):
         date = pd.to_datetime("2005-08-13")
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='years', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=date, num_units=self.num_units, units='years', same=False)
 
         self.assertIsNone(test_x)
 
     def test_hours_15(self):
         num_units = 15
 
-        test_x, test_y = create_X_y2(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=num_units, units='hours', same=False)
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=num_units, units='hours', same=False)
 
         hours_set = set([i for i in range(9, 24)])
 

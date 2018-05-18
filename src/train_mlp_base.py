@@ -306,7 +306,7 @@ NN_dict = {'epochs': 38,
 
 mlp = build_neural_network(len(columns), hidden_layer_neurons)
 
-test_dates = get_random_test_dates(5, 2017, (10, 18), 2)
+test_dates = get_random_test_dates(5, 2017, (8, 18), 2)
 
 def train_mlp(X, y, model=mlp, NN_dict=NN_dict):
     """
@@ -332,4 +332,4 @@ def train_mlp(X, y, model=mlp, NN_dict=NN_dict):
               # callbacks=[NN_dict['callback']],
               verbose=1)
     y_hat = model.predict(X)
-    # return np.sqrt(mean_squared_error(y, y_hat))
+    return np.sqrt(mean_squared_error(y, y_hat))

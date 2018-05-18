@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import calendar
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error
@@ -9,48 +10,12 @@ from keras.models import Sequential
 from keras.layers.core import Activation, Dense
 from keras.objectives import MSE, MAE
 from keras.callbacks import EarlyStopping
-from keras.optimizers import SGD
 from sklearn.model_selection import GridSearchCV
 import matplotlib.dates as mdates
 import random
 
-def create_lagged_DNI_features(num_lagged_features, df):
-    """
-    Creates new variables that have the Direct Normal [W/m^2] value
-    from the time stamp X minutes ago.
 
-    Example:
-        The value of df[1, 'DNI_T_minus1'] will be equal to
-        df[0, 'Direct Normal [W/m^2]']. Similarly, the value of
-        df[2, 'DNI_T_minus2'] will be equal to the value of
-        df[0, 'Direct Normal [W/m^2]'].
-
-    Parameters:
-        num_lagged_features: (int) The number of minutes each
-                             observation should look back (will be
-                             the number of new columns created as
-                             well)
-        df: (pandas dataframe)
-
-    Return:
-        df: (pandas dataframe) df with additional columns.
-    """
-    lagged_steps = np.arange(1, num_lagged_features + 1)
-    feature_names = [f"DNI_T_minus{i}" for i in lagged_steps]
-
-    for x, i in enumerate(lagged_steps):
-        base = df['Direct Normal [W/m^2]'].copy().values
-        values = np.insert(base, np.repeat(0,i), np.repeat(0,i))
-        df[feature_names[x]] = values[:-i]
-
-    dni_copy = df['Direct Normal [W/m^2]'].copy().values
-    target = np.insert(dni_copy, np.repeat(dni_copy.shape[0], num_lagged_features), np.repeat(0, num_lagged_features))
-    df[f'DNI_T_plus{num_lagged_features}'] = target[num_lagged_features:]
-
-    return df
-
-
-def create_X_y2(df, columns, target, date, num_units, units, same=True):
+def create_X_y(df, columns, target, date, num_units, units, same=True):
     """
     Creates a subset of df for training model
 
@@ -208,9 +173,7 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
                 frames.append(frame)
 
             final = pd.concat(frames)
-            print(final.shape)
             final = final[final['final_date'] < date]
-            print(final.shape)
 
             y = final.pop(target)
             X = final[columns]
@@ -236,43 +199,40 @@ def create_X_y2(df, columns, target, date, num_units, units, same=True):
         return X, y
 
 
-
-def create_X_y(df, columns):
+def create_lagged_DNI_features(num_lagged_features, df):
     """
-    Creates a subset of df where only dates equal to date are included
+    Creates new variables that have the Direct Normal [W/m^2] value
+    from the time stamp X minutes ago.
+
+    Example:
+        The value of df[1, 'DNI_T_minus1'] will be equal to
+        df[0, 'Direct Normal [W/m^2]']. Similarly, the value of
+        df[2, 'DNI_T_minus2'] will be equal to the value of
+        df[0, 'Direct Normal [W/m^2]'].
 
     Parameters:
-        df: (pandas dataframe) Master dataframe
-        columns: (list) A list of strings specifying which columns
-                 should be included in the X matrix as predictive
-                 attributes
-        target: (str) Target column within df
-        date: (str) formate = YYYY-MM-DD
-        num_units: (int) Specifies the number of units to used
-        units: (str) Units that specify the time-period
-                     for the data set to
-                     option are:
-                        'years',
-                        'months',
-                        'weeks',
-                        'days',
-                        'hours'
-        same: (boolean - Default = True) If True, units will go back incrementally.
-                example: if date = "2017-04-30", units = "months" and same = True, then the data set will be compsed of
+        num_lagged_features: (int) The number of minutes each
+                             observation should look back (will be
+                             the number of new columns created as
+                             well)
+        df: (pandas dataframe)
 
-
-    Returns:
-        X: (Numpy array) A 2 dimensional numpy array with the values
-           of the columns specified
-        y: (Numpy array) A 1 dimensional numpy array with the values
-           of the target column
+    Return:
+        df: (pandas dataframe) df with additional columns.
     """
+    lagged_steps = np.arange(1, num_lagged_features + 1)
+    feature_names = [f"DNI_T_minus{i}" for i in lagged_steps]
 
-    y = df.pop('DNI_T_plus15').values
+    for x, i in enumerate(lagged_steps):
+        base = df['Direct Normal [W/m^2]'].copy().values
+        values = np.insert(base, np.repeat(0,i), np.repeat(0,i))
+        df[feature_names[x]] = values[:-i]
 
-    X = df[columns].values
+    dni_copy = df['Direct Normal [W/m^2]'].copy().values
+    target = np.insert(dni_copy, np.repeat(dni_copy.shape[0], num_lagged_features), np.repeat(0, num_lagged_features))
+    df[f'DNI_T_plus{num_lagged_features}'] = target[num_lagged_features:]
 
-    return X, y
+    return df
 
 
 def test_model(model, columns, iter, train_duration, test_duration, df, network=False):
@@ -442,7 +402,7 @@ def build_neural_network(n_predictors, hidden_layer_neurons):
     model.add(Dense(units=1))
 
     model.compile(optimizer='rmsprop',
-                  loss='mse')
+                  loss='mean_squared_error')
 
     return model
 
@@ -457,13 +417,9 @@ if __name__ == "__main__":
              'Global UVA [W/m^2]',
              'Global UVE [W/m^2]',
              'Global UVE [Index]',
-             'Avg Wind Speed @ 30ft [m/s]',
-             'Avg Wind Direction @ 30ft [deg from N]',
-             'Peak Wind Speed @ 30ft [m/s]',
              'UVSAET Temp [deg C]',
              'Logger Temp [deg C]',
              'Logger Battery [VDC]',
-             'Wind Chill Temp [deg C]',
               'Diffuse Horiz (calc) [W/m^2]'], axis=1, inplace=True)
 
     print("\nData successfully loaded")
@@ -476,9 +432,6 @@ if __name__ == "__main__":
 
     print("\nDataFrame limited to observation with DNI >= -10")
 
-    # set seed
-    np.random.seed(5)
-
     columns = ['Year',
             'Month',
             'DOY',
@@ -488,6 +441,10 @@ if __name__ == "__main__":
             'Zenith Angle [degrees]',
             'Azimuth Angle [degrees]',
             'Airmass',
+            'Avg Wind Speed @ 30ft [m/s]',
+            'Avg Wind Direction @ 30ft [deg from N]',
+            'Peak Wind Speed @ 30ft [m/s]',
+            'Wind Chill Temp [deg C]',
             'DNI_T_minus1',
             'DNI_T_minus2',
             'DNI_T_minus3',
@@ -504,10 +461,11 @@ if __name__ == "__main__":
             'DNI_T_minus14',
             'DNI_T_minus15']
 
-    dates = df['final_date']
-################################################################################
-################################# BASE MODEL ###################################
-################################################################################
+    test_dates = get_random_test_dates(5, 2017, 2)
+
+###############################################################################
+################################# BASE MODEL ##################################
+###############################################################################
 
     rf = RandomForestRegressor()
 
@@ -544,9 +502,9 @@ if __name__ == "__main__":
     }
     error_plot(error_dict, ['red','orange'], "Random Forest vs. Persistence Model Errors", "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", "../images/cross_validation_plot.png")
 
-################################################################################
-############################### NEURAL NETWORK #################################
-################################################################################
+###############################################################################
+############################### NEURAL NETWORK ################################
+###############################################################################
 
     np.random.seed(5)
 

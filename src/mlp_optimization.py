@@ -52,7 +52,6 @@ def build_neural_network(n_predictors=28, hidden_layer_neurons=8, hidden_layer_n
 
     return model
 
-
 if __name__ == "__main__":
 
     df = get_master_df("../data/ivanpah_measurements.csv")
@@ -74,7 +73,7 @@ if __name__ == "__main__":
 
     print("\n15 new features successfully engineered")
 
-    df = df[df['Direct Normal [W/m^2]'] > -10]
+    df = df[df['Direct Normal [W/m^2]'] > 0]
 
     print("\nDataFrame limited to observation with DNI >= -10")
 
