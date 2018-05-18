@@ -1,4 +1,6 @@
+data/yearly/
 data/solar_measurements/
+data/2003_2006.csv
 data/ivanpah_measurements.csv
 data/ivanpah_measurements_modeling.csv
 dni_forecasting_review.pdf
