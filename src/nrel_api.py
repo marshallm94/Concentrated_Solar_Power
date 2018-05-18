@@ -2,14 +2,22 @@ import numpy as np
 import pandas as pd
 import os
 import sys
+import json
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
+with open("/Users/marsh/api_keys/nrel_api.json", 'r') as f:
+    data = json.load(f)
+    api = data['api']
 
-api = "tqGtbG1o4RZElqPT6BQrn6JpEiuBZR2tGlQhlHxE"
-lat, lon, year = 33.2164, -97.1292, 2010
+lat, lon, year = 35.5566, -115.4709, 2010
 
-attr = 'ghi,dhi,dni,wind_speed_10m_nwp,surface_air_temperature_nwp,solar_zenith_angle'
+# attr = 'ghi,dhi,dni,wind_speed_10m_nwp,surface_air_temperature_nwp,solar_zenith_angle'
+
+# attr = 'air_temperature,clearsky_dni,clearskycloud_type'
+
+attr = 'air_temperature,clearsky_dhi,clearsky_dni,clearsky_ghi,cloud_type,dew_point,dhi,dni,fill_flag,ghi,relative_humidity,solar_zenith_angle,surface_albedo,surface_pressure,total_precipitable_water,wind_direction,wind_speed'
+
 
 year = '2010'
 leap = 'false'
@@ -25,10 +33,9 @@ affiliation = 'Galvanzie'
 email = 'marshallm94@gmail.com'
 mailing_list = 'false'
 
-# df = pd.read_csv('http://developer.nrel.gov/api/solar/nsrdb_0512_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}'.format(year=year, lat=lat, lon=lon, leap=leap_year, interval=interval, utc=utc, name=your_name, email=your_email, mailing_list=mailing_list, affiliation=your_affiliation, reason=reason_for_use, api=api_key, attr=attributes), skiprows=2)
+# df = pd.read_csv(f'http://developer.nrel.gov/api/solar/nsrdb_0512_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}', skiprows=2)
 
-
-df = pd.read_csv(f'http://developer.nrel.gov/api/solar/nsrdb_0512_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}', skiprows=2)
+df = pd.read_csv(f'http://developer.nrel.gov//api/solar/nsrdb_psm3_download.csv?wkt=POINT({lon}%20{lat})&names={year}&leap_day={leap}&interval={interval}&utc={utc}&full_name={name}&email={email}&affiliation={affiliation}&mailing_list={mailing_list}&reason={reason}&api_key={api}&attributes={attr}', skiprows=2)
 
 # Set the time index in the pandas dataframe:
 df = df.set_index(pd.date_range('1/1/{yr}'.format(yr=year), freq=interval+'Min', periods=525600/int(interval)))
