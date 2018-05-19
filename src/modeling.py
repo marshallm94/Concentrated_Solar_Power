@@ -16,34 +16,40 @@ import random
 
 
 def create_X_y(df, columns, target, date, num_units, units, same=True):
-    """
-    Creates a subset of df for training model
+    '''
+    Creates a subset of df for training a model.
 
     Parameters:
-        df: (pandas dataframe) Master dataframe
-        columns: (list) A list of strings specifying which columns
-                 should be included in the X matrix as predictive
-                 attributes
-        target: (str) Target column within df
-        date: (pandas._libs.tslib.Timestamp)
-        num_units: (int) Specifies the number of units to used
-        units: (str) Units that specify the time-period
-                     for the data set to
-                     option are:
-                        'years',
-                        'months',
-                        'weeks',
-                        'days',
-                        'hours'
-        same: (boolean - default = True) If True, units will go back incrementally by years.
-                example: if date = "2008-08-13", num_units = 2, units = "months" and same = True, then the data set will be composed of data from August (8th month) of 2007 and 2006.
+    ----------
+    df : (Pandas DataFrame)
+    columns : (list)
+        A list of strings specifying which columns should be included in the X
+        matrix as predictive attributes
+    target : (str)
+        Target column within df
+    date : (pandas._libs.tslib.Timestamp)
+    num_units : (int)
+        Specifies the number of units to used
+    units : (str)
+        Units that specify the time-period for the data set to option are:
+            'years',
+            'months',
+            'weeks',
+            'days',
+            'hours'
+    same : (bool)
+        If True, units will go back incrementally by years.
+        example: if date = "2008-08-13", num_units = 2, units = "months" and
+        same = True, then the data set will be composed of data from August
+        (8th month) of 2007 and 2006.
 
     Returns:
-        X: (Numpy array) A 2 dimensional numpy array with the values
-           of the columns specified
-        y: (Numpy array) A 1 dimensional numpy array with the values
-           of the target column
-    """
+    ----------
+    X : (Pandas DataFrame)
+        A DataFrame with the values of the columns specified
+    y : (Pandas Series)
+        A 1 dimensional Seriess with the values of the target column
+    '''
     date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
 
     if units == 'years':
@@ -197,6 +203,45 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
         y = df[mask1 & mask2].pop(target)
         X = df[mask1 & mask2][columns]
         return X, y
+
+
+def create_lagged_features(df, columns, shift, row_time_steps):
+    '''
+    Creates new variables that are current variables "shifted," allowing
+    sequential information to be contained in a DataFrame that can be passed to
+    more than time-series models.
+
+    Note that the dimensions of the returned DataFrame will be
+    (df.shape[0] rows by df.shape[1] + (len(columns) * shift))
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+        Must contain all columns specified by the columns parameter
+    columns : (list)
+        A list of columns for which to create lagged variables. (Note that even
+        if only one column is specified, it must be contained within a list)
+    shift : (int)
+        The number of observations to shift forward
+    row_time_steps : (int)
+        The time difference (in minutes) from one observation to the next in
+        the DataFrame specified
+
+    Returns:
+    ----------
+    df : (Pandas DataFrame)
+        DataFrame with new columns added
+    '''
+    out = df.copy()
+    for col in columns:
+        feature_names = [f"{col}_T_minus_{row_time_steps*i}" for i in range(1, shift + 1)]
+        base = out[col].copy().values
+        for x, new_col in enumerate(feature_names):
+            x += 1
+            values = np.insert(base, np.repeat(0, x), np.repeat(0, x))
+            out[new_col] = values[:-x]
+
+    return out
 
 
 def create_lagged_DNI_features(num_lagged_features, df):
