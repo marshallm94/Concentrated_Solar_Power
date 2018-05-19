@@ -66,7 +66,8 @@ def build_master_csv(root, filename):
 
 def get_master_df(filename):
     '''
-    Read in filename and sets index to datetime object
+    Read in filename, creates a numeric 'Month' column, a numeric
+    'Year' column and sets the index to Pandas Datetime format.
 
     Parameters:
     ----------
@@ -87,20 +88,29 @@ def get_master_df(filename):
 
 
 def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
-    """
+    '''
     Plots the value of the variable specified on a given day within
     a given hour range.
 
 
     Parameters:
-        date: (str) The date to be plotted, in the format YYYY-MM-DD
-        hour_range: (tuple) Tuple of integers for the start and stop hours during the day (in 24 hour format i.e. 11pm = 23)
-        variables: (list) list of variables to be plotted across the day specified
-        df: (DataFrame) Pandas DataFrame containing variables
+    ----------
+    date : (str)
+        The date to be plotted, in the format YYYY-MM-DD
+    hour_range : (tuple)
+        Tuple of integers for the start and stop hours during the day (in
+        24 hour format i.e. 11pm = 23)
+    variables : (list of str's)
+        list of variables to be plotted across the day specified (Note
+        that even if only one variable is specified, it must be contained
+        within a list)
+    df : (Pandas DataFrame)
+        Pandas DataFrame containing variables specified
 
     Returns:
-        None
-    """
+    ----------
+    None
+    '''
     mask = df['Date'] == date
     mask2 = df['Hour'] >= hour_range[0]
     mask3 = df['Hour'] <= hour_range[1]
@@ -123,29 +133,38 @@ def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
 
 
 def plot_daterange_DNI(start_date, end_date, hour_range, groupby, variables, ylab, df, savefig=False):
-    """
+    '''
     Plots variables within a pandas dataframe against its index.
-    This was designed to work with the index set to be a datetime
+    This functions was designed to work with the index set to be a datetime
     type.
 
     Parameters:
-        start_date: (str) The date for the beginning of the date
-                          range, in YYYY-MM-DD
-        end_date: (str) The date for the end of the date
-                          range, in YYYY-MM-DD
-        hour_range: (tuple) Constraints on the hours for the
-                            variables to be measured, in military
-                            time (i.e (4, 20) = 4:00 AM to 8:00 PM)
-        groupby: (str) The variable name to groupby
-        variables: (list) A list of strings of the variable names to
-                          be plotted (all on one figure)
-        ylab: (str) Y axis label
-        df: (pandas dataframe)
-        savefig: (boolean/str) Won't save the figure if set to False (default), if saving figure is desired, put a string corresponding to the filename
+    ----------
+    start_date : (str)
+        The date for the beginning of the date range, in YYYY-MM-DD format
+    end_date : (str)
+        The date for the end of the date range, in YYYY-MM-DD format
+    hour_range : (tuple)
+        Constraints on the hours for the variables to be measured, in
+        military time (i.e (4, 20) = 4:00 AM to 8:00 PM)
+    groupby : (str)
+        The variable name to groupby
+    variables : (list)
+        A list of strings of the variable names to be plotted (Note
+        that even if only one variable is specified, it must be contained
+        within a list)
+    ylab : (str)
+        Y axis label
+    df : (Pandas DataFrame)
+    savefig : (boolean/str)
+        Won't save the figure if set to False (default), if saving figure
+        is desired, put a string corresponding to the filepath to which
+        the figure should be saved
 
-    Return:
-        None
-    """
+    Returns:
+    ----------
+    None
+    '''
     mask = df['Date'] >= start_date
     mask2 = df['Date'] <= end_date
     day_subset = df[mask & mask2]
@@ -170,14 +189,19 @@ def plot_daterange_DNI(start_date, end_date, hour_range, groupby, variables, yla
 
 
 def heatmap(df, filename=False):
-    """
-    Creates a heatmap of the correlation matrix of df (Pandas DataFrame).
-    Inputs:
-        df: (Pandas DataFrame)
-        filename: (str) - the path to which you would like to save the image.
-    Output:
-        None (displays figure and saves image)
-    """
+    '''
+    Creates a heatmap of the correlation matrix of a DataFrame.
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+    filename : (str)
+        The path to which you would like to save the image.
+
+    Returns:
+    ----------
+    None
+    '''
     corr = df.corr()
     ylabels = ["{} = {}".format(col, x + 1) for x, col in enumerate(list(corr.columns))]
     xlabels = [str(x + 1) for x in range(len(ylabels))]
