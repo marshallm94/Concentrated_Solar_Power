@@ -9,18 +9,24 @@ from pandas.plotting import scatter_matrix
 plt.style.use('ggplot')
 
 def build_master_csv(root, filename):
-    """
+    '''
     Reads all files in filepath specified by root parameter and
     concatenates into one Pandas DataFrame, which is then saved as a
     separate file specified by filename parameter
 
     Parameters:
-        root: (str) The relative or absolute path to the directory containing all files desired to be concatenated.
-        filename: (str) The filename where the final data object should be saved.
+    ----------
+    root : (str)
+        The relative or absolute path to the directory containing all files
+        desired to be concatenated.
+    filename : (str)
+        The filename where the final data object should be saved.
 
     Returns:
-        None
-    """
+    ----------
+    None
+    '''
+
     all_files = os.listdir(path=root)
     all_files.remove("header.csv")
     col_names = list(pd.read_csv("../data/solar_measurements/header.csv"))
@@ -59,15 +65,18 @@ def build_master_csv(root, filename):
 
 
 def get_master_df(filename):
-    """
+    '''
     Read in filename and sets index to datetime object
 
     Parameters:
-        filename:(str) The path to the csv file
+    ----------
+    filename : (str)
+        The path to the csv file
 
     Returns:
-        df: (Pandas DataFrame)
-    """
+    ----------
+    df : (Pandas DataFrame)
+    '''
 
     df = pd.read_csv(filename)
     df['final_date'] = pd.to_datetime(df['final_date'])
@@ -108,9 +117,9 @@ def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
     ax.yaxis.set_label_coords(-0.105,0.5)
     plt.legend()
     plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"), fontweight='bold', fontsize=18)
+    plt.show()
     if savefig:
         plt.savefig(savefig)
-    plt.show()
 
 
 def plot_daterange_DNI(start_date, end_date, hour_range, groupby, variables, ylab, df, savefig=False):
@@ -180,6 +189,7 @@ def heatmap(df, filename=False):
     plt.yticks(rotation=0)
     plt.xticks(rotation=0)
     plt.suptitle("Correlation Between Attributes", fontweight="bold", fontsize=16)
+    plt.show()
     if filename:
         plt.savefig(filename, orientation='landscape')
 
@@ -187,8 +197,8 @@ def heatmap(df, filename=False):
 if __name__ == "__main__":
 
     # build_master_csv("../data/solar_measurements/", "../data/ivanpah_measurements.csv")
-    #
-    # df = get_master_df("../data/ivanpah_measurements.csv")
+
+    df = get_master_df("../data/ivanpah_measurements.csv")
 
     correlation_df = df[['DOY',
                          'Direct Normal [W/m^2]',
@@ -213,5 +223,7 @@ if __name__ == "__main__":
     plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Hour', ['Direct Normal [W/m^2]', 'Zenith Angle [degrees]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_hourly_irradiance.png")
 
     plot_day('2017-07-05', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", df, "../images/irradiance_20170705.png")
+
+    plot_day('2017-07-04', (4, 20), ['Direct Normal [W/m^2]','Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", df, "../images/irradiance_20170704.png")
 
     plot_daterange_DNI('2017-01-01', '2017-12-31', (6, 16), 'Month', ['Direct Normal [W/m^2]', 'Global Horiz [W/m^2]','Diffuse Horiz (calc) [W/m^2]'], r"$\frac{Watts}{Meter^2}$", df, "../images/avg_monthly_irradiance.png")
