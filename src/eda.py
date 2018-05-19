@@ -29,6 +29,7 @@ def format_nrel_dataframe(filepath):
     df.set_index('final_date', inplace=True, drop=False)
     df['Date'] = pd.to_datetime(df['final_date'].values).strftime("%Y-%m-%d")
     df['DOY'] = pd.to_datetime(df['final_date'].values).dayofyear
+    df['Cloud Type'] = np.nan_to_num(df['Cloud Type'].values, copy=False)
     return df
 
 
