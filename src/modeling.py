@@ -211,8 +211,9 @@ def create_lagged_features(df, columns, shift, row_time_steps):
     sequential information to be contained in a DataFrame that can be passed to
     more than time-series models.
 
-    Note that the dimensions of the returned DataFrame will be
-    (df.shape[0] rows by df.shape[1] + (len(columns) * shift))
+    Note that the dimensions of the returned DataFrame will be:
+
+        N rows X (df.shape[1] + (len(columns) * shift)) columns
 
     Parameters:
     ----------
@@ -241,6 +242,45 @@ def create_lagged_features(df, columns, shift, row_time_steps):
             values = np.insert(base, np.repeat(0, x), np.repeat(0, x))
             out[new_col] = values[:-x]
 
+    return out
+
+
+def create_future_target(df, column, shift, row_time_steps):
+    '''
+    Creates a target column for modeling that is the future values of the column
+    specified. The number of the new column specifies the change in minutes.
+
+    Example:
+        [1]: new = create_future_target(df, 'DNI', 5, 10)
+         # This is saying that there is a 10 minute difference from one
+           one observation to the next. The target column that will be created
+           will be called 'DNI_T_plus50', meaning that for an observation at
+           time-stamp X, the value of 'DNI_T_plus50' is the value of 'DNI' 50
+           minutes from time-stamp X.
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+        Must contain column specified by the columns parameter
+    column : (str)
+        Name of the column whose values will be shifted to create a new target
+        column
+    shift : (int)
+        The number of observations to shift backward
+    row_time_steps : (int)
+        The time difference (in minutes) from one observation to the next in
+        the DataFrame specified
+
+    Returns:
+    ----------
+    df : (Pandas DataFrame)
+        DataFrame with new column added
+    '''
+    out = df.copy()
+    base = out[column].copy().values
+    target = np.insert(base, np.repeat(base.shape[0], shift), np.repeat(0, shift))
+    target_column_name = f"{column}_T_plus{shift * row_time_steps}"
+    out[target_column_name] = target[shift:]
     return out
 
 
