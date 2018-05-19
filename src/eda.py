@@ -33,20 +33,28 @@ def format_nrel_dataframe(filepath):
 
 
 def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
-    """
+    '''
     Plots the value of the variable specified on a given day within
     a given hour range.
 
 
     Parameters:
-        date: (str) The date to be plotted, in the format YYYY-MM-DD
-        hour_range: (tuple) Tuple of integers for the start and stop hours during the day (in 24 hour format i.e. 11pm = 23)
-        variables: (list) list of variables to be plotted across the day specified
-        df: (DataFrame) Pandas DataFrame containing variables
+    ----------
+    date : (str)
+        The date to be plotted, in the format YYYY-MM-DD
+    hour_range : (tuple)
+        Tuple of integers for the start and stop hours during the day (in 24
+        hour format i.e. 11pm = 23)
+    variables : (list)
+        List of variables to be plotted across the day specified (Note that
+        even if only one variable is specified it must be contained in a list)
+    df : (Pandas DataFrame)
+        Contains variables specified
 
     Returns:
-        None
-    """
+    ----------
+    None
+    '''
     mask = df['Date'] == date
     mask2 = df['Hour'] >= hour_range[0]
     mask3 = df['Hour'] <= hour_range[1]
@@ -69,19 +77,33 @@ def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
 
 
 def distribution_plot(df, column_name, target_column, xlab, ylab, title, filename=False, plot_type="box", order=None):
-    """
-    Create various plot types leverage matplotlib.
-    Inputs:
-        df: (Pandas DataFrame)
-        column_name: (str) - A column in df that you want to have on the x-axis
-        target_column: (str) - A column in df that you want to have on the y_axis
-        xlab, ylab, title: (all str) - Strings for the x label, y label and title of the plot, respectively.
-        filename: (str) - the relative path to which you would like to save the image
-        plot_type: (str) - "box", "violin" or "bar"
-        order: (None (default) or list) - the ordering of the variable on the x-axis
-    Output:
-        None (displays figure and saves image)
-    """
+    '''
+    Create various plot types leveraging matplotlib and seaborn.
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+    column_name : (str)
+        A column in df that you want to have on the x-axis
+    target_column : (str)
+        A column in df that you want to have on the y_axis
+    xlab : (str)
+        X-axis label
+    ylab : (str)
+        Y-axis label
+    title : (str)
+        Title for the plot
+    filename : (str)
+        The absolute or relative path to which you would like to save the image
+    plot_type : (str)
+        Can be one of the following: "box", "violin" or "bar"
+    order : (None / list)
+        the ordering of the variable on the x-axis
+
+    Returns:
+    ----------
+    None
+    '''
     fig = plt.figure(figsize=(13,6))
     ax = fig.add_subplot(111)
     if plot_type == "box":
