@@ -3,7 +3,7 @@ import numpy as np
 import calendar
 import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, mean_squared_error
 from manipulation import get_master_df, plot_day
 import train_mlp_base as tmb
 from eda import format_nrel_dataframe
@@ -361,15 +361,48 @@ def test_model(model, X, y):
     ----------
     mae : (float)
         Testing Mean Absolute Error
+    rmse : (float)
+        Testing Root Mean Squared Error
     scores : (dict)
         Cross validation scores
     '''
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
-    scores = cross_validate(model, x_train, y_train, scoring='neg_mean_absolute_error', verbose=0, n_jobs=-1, cv=5)
+    scores = cross_validate(model, x_train, y_train, scoring=['neg_mean_absolute_error','neg_mean_squared_error'], verbose=1, n_jobs=-1, cv=5)
     model.fit(x_train, y_train)
     y_hat = model.predict(x_test)
     mae = mean_absolute_error(y_test, y_hat)
-    return mae, scores
+    rmse = np.sqrt(mean_squared_error(y_test, y_hat))
+    return mae, rmse, scores
+
+
+def iterative_testing(model, df, test_dates):
+    '''
+    Iteratively tests model using test_model() for every date in test_dates
+
+    Parameters:
+    ----------
+    model : (object)
+        Machine Learning object that implements both .fit() and .predict()
+    test_dates : (list)
+        List containing dates in pandas._libs.tslib.Timestamp format
+
+    Returns:
+    ----------
+    errors : (list)
+        List of tuples. There are three elements in each tuple:
+            Element 1: Date used to in create_X_y()
+            Element 2: Testing Mean Absolute Error
+            Element 3: Testing Root Mean Squared Error
+    '''
+    errors = []
+    for date in test_dates:
+        X, y = create_X_y(df, df.columns, 'DNI_T_plus30', date, 3, 'months', same=True)
+        X.drop(['final_date','Date'], axis=1, inplace=True)
+        mae, rmse, scores = test_model(rf, X, y)
+        print("Testing MAE | {:.4f}".format(mae))
+        print("Testing RMSE | {:.4f}".format(rmse))
+        errors.append((date, mae, rmse))
+    return errors
 
 
 def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
@@ -453,9 +486,4 @@ if __name__ == "__main__":
     test_dates = tmb.get_random_test_dates(5, 2017, (6,18), 2)
 
     rf = RandomForestRegressor()
-
-    X, y = create_X_y(df, df.columns, 'DNI_T_plus30', test_dates[0], 3, 'months', same=True)
-
-    X.drop(['final_date','Date'], axis=1, inplace=True)
-    # X.set_index(np.arange(X.shape[0]), inplace=True)
-    mae, scores = test_model(rf, X, y)
+    test = iterative_testing(rf, df, test_dates)
