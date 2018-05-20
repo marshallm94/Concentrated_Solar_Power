@@ -497,7 +497,6 @@ def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc
     plt.show()
 
 
-
 def get_random_test_dates(seed, year, hour_range, num_days_per_month):
     """
     Returns two random test dates per month within the given year.

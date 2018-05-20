@@ -1,5 +1,6 @@
 import os
 import sys
+import pickle
 parentPath = os.path.abspath("..")
 if parentPath not in sys.path:
     sys.path.insert(0, parentPath)
@@ -26,11 +27,13 @@ if __name__ == "__main__":
     df = create_lagged_features(df, lag_features, 4, 30)
     df = create_future_target(df, 'DNI', 1, 30)
 
-    mlp = build_neural_network(len(df.columns) - 3, [10, 40])    
+    mlp = build_neural_network(len(df.columns) - 3, [10, 40])
 
-    hour_range_10 = train_hours_range(df, 10)
-    hour_range_20 = train_hours_range(df, 20)
-    hour_range_30 = train_hours_range(df, 30)
-    hour_range_40 = train_hours_range(df, 40)
-    hour_range_50 = train_hours_range(df, 50)
-    hour_range_60 = train_hours_range(df, 60)
+    hours_results = {}
+    for i in range(10, 70, 10):
+        key = f"{i}_hour_same_mlp_results"
+        mlp_error_dict = iterative_nn_testing(mlp, df, 'DNI_T_plus30', test_dates, i, 'hours', fit_params=NN_dict, same=True)
+        hours_results[key] = mlp_error_dict
+
+    with open('hours_same_results_dict.pickle', 'wb') as f:
+        pickle.dump(hours_results, f, protocol=pickle.HIGHEST_PROTOCOL)

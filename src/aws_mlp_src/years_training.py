@@ -18,11 +18,11 @@ if __name__ == "__main__":
     df = create_future_target(df, 'DNI', 1, 30)
 
     mlp = build_neural_network(len(df.columns) - 3, [10, 40])
-    final_results = {}
+    years_results = {}
     for i in range(1, 13):
         key = f"{i}_year_same_mlp_results"
         mlp_error_dict = iterative_nn_testing(mlp, df, 'DNI_T_plus30', test_dates, i, 'years', fit_params=NN_dict, same=True)
-        final_results[key] = mlp_error_dict
+        years_results[key] = mlp_error_dict
 
     with open('years_results_dict.pickle', 'wb') as f:
-        pickle.dump(final_results, f, protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(years_results, f, protocol=pickle.HIGHEST_PROTOCOL)
