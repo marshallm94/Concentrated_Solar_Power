@@ -4,7 +4,7 @@ parentPath = os.path.abspath("..")
 if parentPath not in sys.path:
     sys.path.insert(0, parentPath)
 
-from train_mlp_base import *
+from mlp_base import *
 from manipulation import get_master_df
 
 

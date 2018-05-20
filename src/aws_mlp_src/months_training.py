@@ -4,7 +4,7 @@ parentPath = os.path.abspath("..")
 if parentPath not in sys.path:
     sys.path.insert(0, parentPath)
 
-from train_mlp_base import *
+from mlp_base import *
 from manipulation import get_master_df
 
 def train_same_months_range(df, num_months):
@@ -21,7 +21,7 @@ def train_months_range(df, num_months):
     for day in test_dates:
         X, y = create_X_y(df=df, columns=columns, target='DNI_T_plus15', date=day, num_units=num_months, units='months', same=False)
         train_rmse = train_mlp(X.values, y.values)
-        print("\nMLP Training RMSE | {:.4f}\n".format(train_rmse))        
+        print("\nMLP Training RMSE | {:.4f}\n".format(train_rmse))
         results.append((day, train_rmse))
     return results
 
