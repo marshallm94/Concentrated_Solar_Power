@@ -2,18 +2,9 @@ import pandas as pd
 import numpy as np
 import calendar
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from manipulation import get_master_df, plot_day
-import train_mlp_base as tmb
-from eda import format_nrel_dataframe
 from datetime import datetime
-from keras.models import Sequential
-from keras.layers.core import Activation, Dense
-from keras.objectives import MSE, MAE
-from keras.callbacks import EarlyStopping
-from sklearn.model_selection import GridSearchCV, cross_validate, train_test_split
-import matplotlib.dates as mdates
+from sklearn.model_selection import cross_validate, train_test_split
 import random
 
 
@@ -307,7 +298,7 @@ def sequential_impute(df, col):
     values = out[col].values
 
 
-def test_model(model, X, y):
+def test_model(model, X, y, n_jobs):
     '''
     Evaluates the model specified using 5-fold cross validation and tests model
     on unseen data.
@@ -320,6 +311,8 @@ def test_model(model, X, y):
         Contains attributes on which the model will be built.
     y : (Pandas Series)
         Target variable
+    n_jobs : (int)
+        number of cores to use for cross validation
 
     Returns:
     ----------
@@ -335,7 +328,7 @@ def test_model(model, X, y):
         Cross validation scores
     '''
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
-    scores = cross_validate(model, x_train, y_train, scoring=['neg_mean_absolute_error','neg_mean_squared_error'], verbose=0, n_jobs=-1, cv=5)
+    scores = cross_validate(model, x_train, y_train, scoring=['neg_mean_absolute_error','neg_mean_squared_error'], verbose=0, n_jobs=n_jobs, cv=5)
     model.fit(x_train, y_train)
     y_hat = model.predict(x_test)
     mae = mean_absolute_error(y_test, y_hat)
@@ -347,7 +340,43 @@ def test_model(model, X, y):
     return mae, rmse, pm_mae, pm_rmse, scores
 
 
-def iterative_testing(model, df, target_col, test_dates, num_units, units, same=True):
+def top_n_feature_importances(model, df, n=-1):
+    '''
+    Returns the n features with the highest Gini Index.
+
+    Parameters:
+    ----------
+    model : (model object)
+        A fitted model object
+    df : (Pandas DataFrame)
+        DataFrame with the columns used to fit model
+    n : (int)
+        Determines how many features to return. If -1, returns all features
+        (default)
+
+    Returns:
+    ----------
+    feature_importances : (array)
+        A 2-D Numpy Array where the first column has the column names and the
+        second column has the respective gini index values.
+    '''
+
+    cols = []
+    importances = []
+    for feature, value in zip(df.columns, model.feature_importances_):
+        cols.append(feature)
+        importances.append(value)
+
+    importances = np.array((importances))
+    cols = np.array((cols))
+    desc_idxs = importances.argsort()[::-1][:n]
+    top_cols = cols[desc_idxs]
+    top_ginis = importances[desc_idxs]
+    X = np.stack([top_cols.astype(object), top_ginis], axis=1)
+    return X
+
+
+def iterative_testing(model, df, target_col, test_dates, num_units, units, n_jobs, same=True):
     '''
     Iteratively tests model using test_model() for every date in test_dates
 
@@ -366,6 +395,8 @@ def iterative_testing(model, df, target_col, test_dates, num_units, units, same=
         Used in create_X_y(). See docstring for create_X_y()
     units : (str)
         Used in create_X_y(). See docstring for create_X_y()
+    n_jobs : (int)
+        number of cores to use for cross validation
     same : (bool)
         Used in create_X_y(). See docstring for create_X_y()
 
@@ -398,7 +429,7 @@ def iterative_testing(model, df, target_col, test_dates, num_units, units, same=
         X, y = create_X_y(df, cols, target_col, date, num_units, units, same=same)
         X.drop(['final_date','Date'], axis=1, inplace=True)
 
-        mae, rmse, pm_mae, pm_rmse, scores = test_model(model, X, y)
+        mae, rmse, pm_mae, pm_rmse, scores = test_model(model, X, y, n_jobs)
 
         print("{} Testing MAE | {:.4f}".format(model.__class__.__name__, mae))
         print("Persistence Model MAE | {:.4f}".format(pm_mae))
@@ -462,6 +493,43 @@ def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc
     plt.show()
     if savefig:
         plt.savefig(savefig)
+
+
+def get_random_test_dates(seed, year, hour_range, num_days_per_month):
+    """
+    Returns two random test dates per month within the given year.
+
+    Parameters:
+    ----------
+    seed : (int)
+        Used for setting the random seed.
+    year : (int)
+        The year from which you would like to select dates.
+    hour_range : (tuple)
+        The hour range (from 0 to 23) from which a random hour will be
+        chosen.
+    num_days_per_month : (int)
+    The number of random days to select per month in the year specified.
+
+    Returns:
+    -------
+    test_dates: (set) A set of test_dates in the format YYYY-MM-DD
+    """
+    np.random.seed(seed)
+    test_dates = []
+    for month in range(1, 13):
+        num_days = calendar.monthrange(year, month)[1]
+        start_date = f"{year}-{month}-01"
+        end_date = f"{year}-{month}-{num_days}"
+        days = pd.date_range(start_date, end_date).astype(str).ravel()
+        test_dates.extend(np.random.choice(days, num_days_per_month))
+
+    out = []
+    for day in test_dates:
+        date = pd.to_datetime(day)
+        new_date = date.replace(hour=random.choice(range(hour_range[0], hour_range[1] + 1)))
+        out.append(new_date)
+    return out
 
 
 def build_neural_network(n_predictors, hidden_layer_neurons):
