@@ -18,6 +18,7 @@ if __name__ == "__main__":
     df = create_future_target(df, 'DNI', 1, 30)
 
     mlp = build_neural_network(len(df.columns) - 3, [10, 40])
+    
     years_results = {}
     for i in range(1, 13):
         key = f"{i}_year_same_mlp_results"
