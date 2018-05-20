@@ -12,7 +12,7 @@ from mlp_base import *
 
 if __name__ == "__main__":
 
-    df = format_nrel_dataframe("../data/2003_2016.csv")
+    df = format_nrel_dataframe("../../data/2003_2016.csv")
     lag_features = ['Temperature', 'Clearsky DHI', 'Clearsky DNI', 'Clearsky GHI', 'Cloud Type','Dew Point','DHI','DNI','Fill Flag', 'GHI','Relative Humidity','Solar Zenith Angle','Surface Albedo','Pressure','Precipitable Water','Wind Direction','Wind Speed']
     df = create_lagged_features(df, lag_features, 4, 30)
     df = create_future_target(df, 'DNI', 1, 30)
