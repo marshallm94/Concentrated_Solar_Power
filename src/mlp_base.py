@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from modeling_base import get_random_test_dates, test_model
+from modeling_base import *
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
 from keras.callbacks import EarlyStopping
@@ -10,7 +10,7 @@ from keras import metrics as met
 from keras.layers.core import Activation, Dense
 
 
-def build_neural_network(n_predictors, hidden_layer_neurons, loss='mean_squared_error'):
+def build_neural_network(n_predictors, hidden_layer_neurons, loss='mean_absolute_error'):
     '''
     Builds a Multi-Layer-Perceptron utilizing Keras.
 
@@ -61,9 +61,7 @@ NN_dict = {'epochs': 38,
            # 'callback': stop_criteria
 }
 
-# mlp = build_neural_network(len(columns), hidden_layer_neurons)
-
-# test_dates = get_random_test_dates(5, 2017, (4, 20), 2)
+test_dates = get_random_test_dates(5, 2017, (4, 20), 2)
 
 def test_nn_model(model, X, y, fit_params=NN_dict):
     '''
@@ -91,6 +89,10 @@ def test_nn_model(model, X, y, fit_params=NN_dict):
         Persistence model Mean Absolute Error
     pm_rmse : (float)
         Persistence model Root Mean Squared Error
+    train_size : (int)
+        Number of observations in the training dataset
+    test_size : (int)
+        Number of observations in the testing dataset
     '''
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
 
@@ -113,4 +115,82 @@ def test_nn_model(model, X, y, fit_params=NN_dict):
     pm_rmse = np.sqrt(mean_squared_error(y_test, x_test['DNI'].values))
     pm_mae = mean_absolute_error(y_test, x_test['DNI'].values)
 
-    return mae, rmse, pm_mae, pm_rmse
+    train_size = x_train.shape[0]
+    test_size = x_test.shape[0]
+
+    return mae, rmse, pm_mae, pm_rmse, train_size, test_size
+
+def iterative_nn_testing(model, df, target_col, test_dates, num_units, units, fit_params=NN_dict, same=True):
+    '''
+    Iteratively tests model using test_model() for every date in test_dates
+
+    Parameters:
+    ----------
+    model : (object)
+        Machine Learning object that implements both .fit() and .predict()
+    df : (Pandas DataFrame)
+        DataFrame containing attributes that will be used to predict
+        target column
+    target_col : (str)
+        The target column to be removed from the DataFrame and predicted on
+    test_dates : (list)
+        List containing dates in pandas._libs.tslib.Timestamp format
+    num_units : (int)
+        Used in create_X_y(). See docstring for create_X_y()
+    units : (str)
+        Used in create_X_y(). See docstring for create_X_y()
+    n_jobs : (int)
+        number of cores to use for cross validation
+    fit_params : (dictionary)
+        Parameters to pass to the fit method
+    same : (bool)
+        Used in create_X_y(). See docstring for create_X_y()
+
+    Returns:
+    ----------
+    errors : (dictionary)
+        Dictionary with 5 key value pairs:
+
+            date - date used in create_X_y()
+            model MAE - model Mean Absolute Error
+            model RMSE - model Root Mean Squared Error
+            Persistence Model MAE - Persistence Model Mean Absolute Error
+            Persistence Model RMSE - Persistence Model Root Mean Squared Error
+            training observations - Number of observations in training dataset
+            testing observations - Number of observations in testing dataset
+
+        The element at index X of each list
+        corresponds to the same training and testing period.
+    '''
+    errors = {'date': [],
+              f'{model.__class__.__name__} MAE': [],
+              f'{model.__class__.__name__} RMSE': [],
+              'Persistence Model MAE': [],
+              'Persistence Model RMSE': [],
+              'training observations': [],
+              'testing observations': []
+    }
+
+    cols = list(df.columns)
+    cols.remove(target_col)
+
+    for date in test_dates:
+        X, y = create_X_y(df, cols, target_col, date, num_units, units, same=same)
+        X.drop(['final_date','Date'], axis=1, inplace=True)
+
+        mae, rmse, pm_mae, pm_rmse, train_size, test_size = test_nn_model(model, X, y, fit_params=fit_params)
+
+        print("{} Testing MAE | {:.4f}".format(model.__class__.__name__, mae))
+        print("Persistence Model MAE | {:.4f}".format(pm_mae))
+        print("{} Testing RMSE | {:.4f}".format(model.__class__.__name__, rmse))
+        print("Persistence Model RMSE | {:.4f}".format(pm_rmse))
+
+        errors['date'].append(date)
+        errors[f'{model.__class__.__name__} MAE'].append(mae)
+        errors[f'{model.__class__.__name__} RMSE'].append(rmse)
+        errors['Persistence Model MAE'].append(pm_mae)
+        errors['Persistence Model RMSE'].append(pm_rmse)
+        errors['training observations'].append(train_size)
+        errors['testing observations'].append(test_size)
+
+    return errors

@@ -13,4 +13,4 @@ if __name__ == "__main__":
     rf = RandomForestRegressor()
     rf_error_dict = iterative_testing(rf, df, 'DNI_T_plus30', test_dates, 5, 'months', -1, same=True)
     rf_error_dict.pop('date')
-    error_plot(rf_error_dict, ['red','orange','blue','green'], 'Random Forest vs Persistence Model Errors', "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", 0.01, 0.375, "../images/rf_v_pm_cv_errors.png")
+    error_plot(rf_error_dict, ['red','orange','blue','green'], 'Random Forest vs Persistence Model Errors', "Testing Period", r"$\frac{Watts}{Meter^2}$", 0.01, 0.375, "../images/rf_v_pm_test_errors.png")

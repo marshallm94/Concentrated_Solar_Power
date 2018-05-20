@@ -416,7 +416,6 @@ def iterative_testing(model, df, target_col, test_dates, num_units, units, n_job
 
         The element at index X of each list
         corresponds to the same training and testing period.
-
     '''
     errors = {'date': [],
               f'{model.__class__.__name__} MAE': [],
@@ -485,7 +484,7 @@ def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc
     counter = 0
 
     for name, array in error_dict.items():
-        ax.plot(array, c=colors[counter], label=f"{name}")
+        ax.plot(array, '-o', c=colors[counter], label=f"{name}")
         counter +=1
 
     plt.xlabel(xlab, fontweight='bold', fontsize=16)
@@ -493,9 +492,10 @@ def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc
     ax.yaxis.set_label_coords(-0.105,0.5)
     plt.suptitle(title, fontweight='bold', fontsize=18)
     ax.legend(loc=(legend_x_loc, legend_y_loc))
-    plt.show()
     if savefig:
         plt.savefig(savefig)
+    plt.show()
+
 
 
 def get_random_test_dates(seed, year, hour_range, num_days_per_month):

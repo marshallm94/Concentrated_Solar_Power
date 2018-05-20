@@ -11,21 +11,9 @@ if __name__ == "__main__":
 
     test_dates = get_random_test_dates(5, 2017, (4, 20), 2)
 
-    target_col = 'DNI_T_plus30'
-    cols = list(df.columns)
-    cols.remove(target_col)
+    mlp = build_neural_network(len(df.columns) - 3, [10, 40])
 
-    mlp = build_neural_network(len(cols) - 2, [10, 40])
+    mlp_errors_dict = iterative_nn_testing(mlp, df, 'DNI_T_plus30', test_dates, 5, 'months', fit_params=NN_dict, same=True)
 
-
-
-    X, y = create_X_y(df, cols, 'DNI_T_plus30', test_dates[0], 5, 'months')
-    X.drop(['final_date','Date'], axis=1, inplace=True)
-    print(X.shape)
-    print('DNI_T_plus30' in X.columns)
-
-    mae, rmse, pm_mae, pm_rmse = test_nn_model(mlp, X, y)
-
-    # mlp_error_dict.pop('date')
-    #
-    # error_plot(rf_error_dict, ['red','orange','blue','green'], 'Neural Network vs Persistence Model Errors', "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", 0.01, 0.375)
+    mlp_errors_dict.pop('date')
+    error_plot(mlp_errors_dict, ['red','orange','blue','green'], 'Neural Network vs Persistence Model Errors', "Cross Validation Period", r"$\frac{Watts}{Meter^2}$", 0.01, 0.375)
