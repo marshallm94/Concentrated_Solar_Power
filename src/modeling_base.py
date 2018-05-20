@@ -327,19 +327,27 @@ def test_model(model, X, y):
         Testing Mean Absolute Error
     rmse : (float)
         Testing Root Mean Squared Error
+    pm_mae : (float)
+        Persistence model Mean Absolute Error
+    pm_rmse : (float)
+        Persistence model Root Mean Squared Error
     scores : (dict)
         Cross validation scores
     '''
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
-    scores = cross_validate(model, x_train, y_train, scoring=['neg_mean_absolute_error','neg_mean_squared_error'], verbose=1, n_jobs=-1, cv=5)
+    scores = cross_validate(model, x_train, y_train, scoring=['neg_mean_absolute_error','neg_mean_squared_error'], verbose=0, n_jobs=-1, cv=5)
     model.fit(x_train, y_train)
     y_hat = model.predict(x_test)
     mae = mean_absolute_error(y_test, y_hat)
     rmse = np.sqrt(mean_squared_error(y_test, y_hat))
-    return mae, rmse, scores
+
+    pm_rmse = np.sqrt(mean_squared_error(y_test, x_test['DNI'].values))
+    pm_mae = mean_absolute_error(y_test, x_test['DNI'].values)
+
+    return mae, rmse, pm_mae, pm_rmse, scores
 
 
-def iterative_testing(model, df, target_col, test_dates):
+def iterative_testing(model, df, target_col, test_dates, num_units, units, same=True):
     '''
     Iteratively tests model using test_model() for every date in test_dates
 
@@ -354,36 +362,85 @@ def iterative_testing(model, df, target_col, test_dates):
         The target column to be removed from the DataFrame and predicted on
     test_dates : (list)
         List containing dates in pandas._libs.tslib.Timestamp format
+    num_units : (int)
+        Used in create_X_y(). See docstring for create_X_y()
+    units : (str)
+        Used in create_X_y(). See docstring for create_X_y()
+    same : (bool)
+        Used in create_X_y(). See docstring for create_X_y()
 
     Returns:
     ----------
-    errors : (list)
-        List of tuples. There are three elements in each tuple:
-            Element 1: Date used to in create_X_y()
-            Element 2: Testing Mean Absolute Error
-            Element 3: Testing Root Mean Squared Error
+    errors : (dictionary)
+        Dictionary with 5 key value pairs:
+
+            date - date used in create_X_y()
+            model MAE - model Mean Absolute Error
+            model RMSE - model Root Mean Squared Error
+            Persistence Model MAE - Persistence Model Mean Absolute Error
+            Persistence Model RMSE - Persistence Model Root Mean Squared Error
+
+        The element at index X of each list
+        corresponds to the same training and testing period.
+
     '''
-    errors = []
+    errors = {'date': [],
+              f'{model.__class__.__name__} MAE': [],
+              f'{model.__class__.__name__} RMSE': [],
+              'Persistence Model MAE': [],
+              'Persistence Model RMSE': []
+    }
+
     cols = list(df.columns)
     cols.remove(target_col)
+
     for date in test_dates:
-        X, y = create_X_y(df, cols, 'DNI_T_plus30', date, 3, 'months', same=True)
+        X, y = create_X_y(df, cols, target_col, date, num_units, units, same=same)
         X.drop(['final_date','Date'], axis=1, inplace=True)
-        mae, rmse, _ = test_model(rf, X, y)
-        print("Testing MAE | {:.4f}".format(mae))
-        print("Testing RMSE | {:.4f}".format(rmse))
-        errors.append((date, mae, rmse))
+
+        mae, rmse, pm_mae, pm_rmse, scores = test_model(model, X, y)
+
+        print("{} Testing MAE | {:.4f}".format(model.__class__.__name__, mae))
+        print("Persistence Model MAE | {:.4f}".format(pm_mae))
+        print("{} Testing RMSE | {:.4f}".format(model.__class__.__name__, rmse))
+        print("Persistence Model RMSE | {:.4f}".format(pm_rmse))
+
+        errors['date'].append(date)
+        errors[f'{model.__class__.__name__} MAE'].append(mae)
+        errors[f'{model.__class__.__name__} RMSE'].append(rmse)
+        errors['Persistence Model MAE'].append(pm_mae)
+        errors['Persistence Model RMSE'].append(pm_rmse)
+
     return errors
 
 
-def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
+def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc, savefig=False):
     '''
-    Creates an error plot
+    Plots the errors of two model against each other
 
     Parameters:
     ----------
-
-
+    error_dict : (dict)
+        A dictionary where the keys are the names of the error arrays
+        (i.e 'Linear Regression Error') and the values are an array_like
+        (array/list) sequence of errors
+    colors : (list)
+        List of strings equal to number of keys in error_dict
+        (one color for each array of model errors)
+    title : (str)
+        The title for the plot
+    xlab : (str)
+        Label for x-axis
+    ylab : (str)
+        Label for y-axis
+    legend_x_loc : (int/float)
+        x-axis coordinate for the legend
+    legend_y_loc : (int/float)
+        y-axis coordinate for the legend
+    savefig : (bool/str)
+        If False default, image will be displayed and not saved. If the
+        user would like the image saved, pass the filepath as string to
+        which the image should be saved.
 
     Returns:
     ----------
@@ -393,7 +450,7 @@ def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
     fig, ax = plt.subplots(figsize=(12,8))
     counter = 0
 
-    for name, array in y_dict.items():
+    for name, array in error_dict.items():
         ax.plot(array, c=colors[counter], label=f"{name}")
         counter +=1
 
@@ -401,11 +458,10 @@ def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
     plt.ylabel(ylab, fontweight='bold', rotation=0, fontsize=16)
     ax.yaxis.set_label_coords(-0.105,0.5)
     plt.suptitle(title, fontweight='bold', fontsize=18)
-    ax.legend()
+    ax.legend(loc=(legend_x_loc, legend_y_loc))
+    plt.show()
     if savefig:
         plt.savefig(savefig)
-    else:
-        plt.show()
 
 
 def build_neural_network(n_predictors, hidden_layer_neurons):
@@ -441,16 +497,3 @@ def build_neural_network(n_predictors, hidden_layer_neurons):
                   loss='mean_squared_error')
 
     return model
-
-
-if __name__ == "__main__":
-
-    df = format_nrel_dataframe("../data/2003_2016.csv")
-    lag_features = ['Temperature', 'Clearsky DHI', 'Clearsky DNI', 'Clearsky GHI', 'Cloud Type','Dew Point','DHI','DNI','Fill Flag', 'GHI','Relative Humidity','Solar Zenith Angle','Surface Albedo','Pressure','Precipitable Water','Wind Direction','Wind Speed']
-    df = create_lagged_features(df, lag_features, 4, 30)
-    df = create_future_target(df, 'DNI', 1, 30)
-
-    test_dates = tmb.get_random_test_dates(5, 2017, (6,18), 2)
-
-    rf = RandomForestRegressor()
-    test = iterative_testing(rf, df, 'DNI_T_plus30', test_dates)
