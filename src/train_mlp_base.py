@@ -7,6 +7,9 @@ from datetime import datetime
 from modeling import build_neural_network
 from sklearn.metrics import mean_squared_error
 from keras.callbacks import EarlyStopping
+from keras.objectives import MSE, MAE
+from keras.models import Sequential
+from keras.layers.core import Activation, Dense
 
 
 def create_X_y(df, columns, target, date, num_units, units, same=True):
@@ -227,41 +230,6 @@ def create_lagged_DNI_features(num_lagged_features, df):
     df[f'DNI_T_plus{num_lagged_features}'] = target[num_lagged_features:]
 
     return df
-
-
-def get_random_test_dates(seed, year, hour_range, num_days_per_month):
-    """
-    Returns two random test dates per month within the given year.
-
-    Parameters:
-    ----------
-    seed: (int) Used for setting the random seed.
-    year: (int) The year from which you would like to select dates.
-    hour_range: (tuple) The hour range (from 0 to 23) from which a random
-        hour will be chosen.
-    num_days_per_month: (int) The number of random days to select per month in
-        the year specified.
-
-    Returns:
-    -------
-    test_dates: (set) A set of test_dates in the format YYYY-MM-DD
-    """
-    np.random.seed(seed)
-    test_dates = []
-    for month in range(1, 13):
-        num_days = calendar.monthrange(year, month)[1]
-        start_date = f"{year}-{month}-01"
-        end_date = f"{year}-{month}-{num_days}"
-        days = pd.date_range(start_date, end_date).astype(str).ravel()
-        test_dates.extend(np.random.choice(days, num_days_per_month))
-
-    out = []
-    for day in test_dates:
-        date = pd.to_datetime(day)
-        new_date = date.replace(hour=random.choice(range(hour_range[0], hour_range[1] + 1)))
-        out.append(new_date)
-    return out
-
 
 
 columns = ['Year',
