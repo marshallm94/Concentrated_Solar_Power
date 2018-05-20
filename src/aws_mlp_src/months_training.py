@@ -4,8 +4,9 @@ parentPath = os.path.abspath("..")
 if parentPath not in sys.path:
     sys.path.insert(0, parentPath)
 
+from modeling_base import *
+from eda import format_nrel_dataframe
 from mlp_base import *
-from manipulation import get_master_df
 
 def train_same_months_range(df, num_months):
     results = []
@@ -26,9 +27,13 @@ def train_months_range(df, num_months):
     return results
 
 if __name__ == "__main__":
-    df = get_master_df("../../data/ivanpah_measurements.csv")
-    df['Direct Normal [W/m^2]'] = np.where(df['Direct Normal [W/m^2]'] < 0, 0, df['Direct Normal [W/m^2]'])
-    df = create_lagged_DNI_features(15, df)
+
+    df = format_nrel_dataframe("../data/2003_2016.csv")
+    lag_features = ['Temperature', 'Clearsky DHI', 'Clearsky DNI', 'Clearsky GHI', 'Cloud Type','Dew Point','DHI','DNI','Fill Flag', 'GHI','Relative Humidity','Solar Zenith Angle','Surface Albedo','Pressure','Precipitable Water','Wind Direction','Wind Speed']
+    df = create_lagged_features(df, lag_features, 4, 30)
+    df = create_future_target(df, 'DNI', 1, 30)
+
+    mlp = build_neural_network(len(df.columns) - 3, [10, 40])    
 
     one_month_same = train_same_months_range(df, 1)
     two_months_same = train_same_months_range(df, 2)

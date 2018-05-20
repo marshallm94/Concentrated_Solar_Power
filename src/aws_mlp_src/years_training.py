@@ -1,26 +1,28 @@
 import os
 import sys
+import pickle
 parentPath = os.path.abspath("..")
 if parentPath not in sys.path:
     sys.path.insert(0, parentPath)
 
+from modeling_base import *
+from eda import format_nrel_dataframe
 from mlp_base import *
-from manipulation import get_master_df
-
-def train_year_range(df, num_years):
-    results = []
-    for day in test_dates:
-        X, y = create_X_y(df=df, columns=columns, target='DNI_T_plus15', date=day, num_units=num_years, units='years')
-        train_rmse = train_mlp(X.values, y.values)
-        print("\nMLP Training RMSE | {:.4f}\n".format(train_rmse))
-        results.append((day, train_rmse))
-    return results
 
 
 if __name__ == "__main__":
-    df = get_master_df("../../data/ivanpah_measurements.csv")
-    df['Direct Normal [W/m^2]'] = np.where(df['Direct Normal [W/m^2]'] < 0, 0, df['Direct Normal [W/m^2]'])
-    df = create_lagged_DNI_features(15, df)
 
-    one_year_results = train_year_range(df, 1)
-    two_year_results = train_year_range(df, 2)
+    df = format_nrel_dataframe("../../data/2003_2016.csv")
+    lag_features = ['Temperature', 'Clearsky DHI', 'Clearsky DNI', 'Clearsky GHI', 'Cloud Type','Dew Point','DHI','DNI','Fill Flag', 'GHI','Relative Humidity','Solar Zenith Angle','Surface Albedo','Pressure','Precipitable Water','Wind Direction','Wind Speed']
+    df = create_lagged_features(df, lag_features, 4, 30)
+    df = create_future_target(df, 'DNI', 1, 30)
+
+    mlp = build_neural_network(len(df.columns) - 3, [10, 40])
+    final_results = {}
+    for i in range(1, 13):
+        key = f"{i}_year_same_mlp_results"
+        mlp_error_dict = iterative_nn_testing(mlp, df, 'DNI_T_plus30', test_dates, i, 'years', fit_params=NN_dict, same=True)
+        final_results[key] = mlp_error_dict
+
+    with open('years_results_dict.pickle', 'wb') as f:
+        pickle.dump(final_results, f, protocol=pickle.HIGHEST_PROTOCOL)
