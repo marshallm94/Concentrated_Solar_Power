@@ -307,42 +307,6 @@ def sequential_impute(df, col):
     values = out[col].values
 
 
-def create_lagged_DNI_features(num_lagged_features, df):
-    """
-    Creates new variables that have the Direct Normal [W/m^2] value
-    from the time stamp X minutes ago.
-
-    Example:
-        The value of df[1, 'DNI_T_minus1'] will be equal to
-        df[0, 'Direct Normal [W/m^2]']. Similarly, the value of
-        df[2, 'DNI_T_minus2'] will be equal to the value of
-        df[0, 'Direct Normal [W/m^2]'].
-
-    Parameters:
-        num_lagged_features: (int) The number of minutes each
-                             observation should look back (will be
-                             the number of new columns created as
-                             well)
-        df: (pandas dataframe)
-
-    Return:
-        df: (pandas dataframe) df with additional columns.
-    """
-    lagged_steps = np.arange(1, num_lagged_features + 1)
-    feature_names = [f"DNI_T_minus{i}" for i in lagged_steps]
-
-    for x, i in enumerate(lagged_steps):
-        base = df['Direct Normal [W/m^2]'].copy().values
-        values = np.insert(base, np.repeat(0,i), np.repeat(0,i))
-        df[feature_names[x]] = values[:-i]
-
-    dni_copy = df['Direct Normal [W/m^2]'].copy().values
-    target = np.insert(dni_copy, np.repeat(dni_copy.shape[0], num_lagged_features), np.repeat(0, num_lagged_features))
-    df[f'DNI_T_plus{num_lagged_features}'] = target[num_lagged_features:]
-
-    return df
-
-
 def test_model(model, X, y):
     '''
     Evaluates the model specified using 5-fold cross validation and tests model
@@ -375,7 +339,7 @@ def test_model(model, X, y):
     return mae, rmse, scores
 
 
-def iterative_testing(model, df, test_dates):
+def iterative_testing(model, df, target_col, test_dates):
     '''
     Iteratively tests model using test_model() for every date in test_dates
 
@@ -383,6 +347,11 @@ def iterative_testing(model, df, test_dates):
     ----------
     model : (object)
         Machine Learning object that implements both .fit() and .predict()
+    df : (Pandas DataFrame)
+        DataFrame containing attributes that will be used to predict
+        target column
+    target_col : (str)
+        The target column to be removed from the DataFrame and predicted on
     test_dates : (list)
         List containing dates in pandas._libs.tslib.Timestamp format
 
@@ -395,10 +364,12 @@ def iterative_testing(model, df, test_dates):
             Element 3: Testing Root Mean Squared Error
     '''
     errors = []
+    cols = list(df.columns)
+    cols.remove(target_col)
     for date in test_dates:
-        X, y = create_X_y(df, df.columns, 'DNI_T_plus30', date, 3, 'months', same=True)
+        X, y = create_X_y(df, cols, 'DNI_T_plus30', date, 3, 'months', same=True)
         X.drop(['final_date','Date'], axis=1, inplace=True)
-        mae, rmse, scores = test_model(rf, X, y)
+        mae, rmse, _ = test_model(rf, X, y)
         print("Testing MAE | {:.4f}".format(mae))
         print("Testing RMSE | {:.4f}".format(rmse))
         errors.append((date, mae, rmse))
@@ -406,22 +377,18 @@ def iterative_testing(model, df, test_dates):
 
 
 def error_plot(y_dict, colors, title, xlab, ylab, savefig=False):
-    """
-    Plots the errors associated with the output of test_model()
+    '''
+    Creates an error plot
 
     Parameters:
-        y_dict: (dict) Keys equal the name of the error array
-                     (i.e. Random Forest, Persistence, True)
-        colors: (list) List of strings (must same length as y_dict)
-        title: (str) Title for plot
-        xlab: (str) Label for X axis
-        ylab: (str) Label for Y axis
-        savefig: (boolean/str) Will show the figure if False
-                 (default), will save the figure if a string (str).
+    ----------
+
+
 
     Returns:
-        None
-    """
+    ----------
+    None
+    '''
 
     fig, ax = plt.subplots(figsize=(12,8))
     counter = 0
@@ -486,4 +453,4 @@ if __name__ == "__main__":
     test_dates = tmb.get_random_test_dates(5, 2017, (6,18), 2)
 
     rf = RandomForestRegressor()
-    test = iterative_testing(rf, df, test_dates)
+    test = iterative_testing(rf, df, 'DNI_T_plus30', test_dates)
