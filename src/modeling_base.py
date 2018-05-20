@@ -308,7 +308,7 @@ def test_model(model, X, y, n_jobs):
     model : (object)
         Machine Learning object that implements both .fit() and .predict()
     X : (Pandas DataFrame)
-        Contains attributes on which the model will be built.
+        Contains attributes on which the model will be trained
     y : (Pandas Series)
         Target variable
     n_jobs : (int)
@@ -328,8 +328,11 @@ def test_model(model, X, y, n_jobs):
         Cross validation scores
     '''
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.15)
+
     scores = cross_validate(model, x_train, y_train, scoring=['neg_mean_absolute_error','neg_mean_squared_error'], verbose=0, n_jobs=n_jobs, cv=5)
+
     model.fit(x_train, y_train)
+
     y_hat = model.predict(x_test)
     mae = mean_absolute_error(y_test, y_hat)
     rmse = np.sqrt(mean_squared_error(y_test, y_hat))
@@ -530,38 +533,3 @@ def get_random_test_dates(seed, year, hour_range, num_days_per_month):
         new_date = date.replace(hour=random.choice(range(hour_range[0], hour_range[1] + 1)))
         out.append(new_date)
     return out
-
-
-def build_neural_network(n_predictors, hidden_layer_neurons):
-    """
-    Builds a Multi-Layer-Perceptron utilizing Keras.
-
-    Parameters:
-        x_train: (2D numpy array) A n x p matrix, with n observations
-                 and p features
-        y_train: (1D numpy array) A numpy array of length n with the
-                 target training values.
-        hidden_layer_neurons: (list) List of ints for the number of
-                              neurons in each hidden layer.
-
-    Returns:
-        model: A MLP with 2 hidden layers
-    """
-    model = Sequential()
-    input_layer_neurons = n_predictors
-
-    model.add(Dense(units=hidden_layer_neurons[0],
-                    input_dim=input_layer_neurons,
-                    kernel_initializer='uniform',
-                    activation='relu'))
-
-    model.add(Dense(units=hidden_layer_neurons[1],
-                    kernel_initializer='uniform',
-                    activation='relu'))
-
-    model.add(Dense(units=1))
-
-    model.compile(optimizer='rmsprop',
-                  loss='mean_squared_error')
-
-    return model
