@@ -167,6 +167,11 @@ def iterative_nn_testing(model, df, target_col, test_dates, num_units, units, fi
     cols = list(df.columns)
     cols.remove(target_col)
 
+    pm_mae_cache = []
+    pm_rmse_cache = []
+    model_mae_cache = []
+    model_rmse_cache = []
+
     for date in test_dates:
         X, y = create_X_y(df, cols, target_col, date, num_units, units, same=same)
         X.drop(['final_date','Date'], axis=1, inplace=True)
@@ -178,12 +183,35 @@ def iterative_nn_testing(model, df, target_col, test_dates, num_units, units, fi
         print("{} Testing RMSE | {:.4f}".format(model.__class__.__name__, rmse))
         print("Persistence Model RMSE | {:.4f}".format(pm_rmse))
 
+        if len(pm_mae_cache) == 1:
+            pm_mae = np.mean((pm_mae_cache[0], pm_mae))
+            errors['Persistence Model MAE'].append(pm_mae)
+            pm_mae_cache = []
+        elif len(pm_mae_cache) == 0:
+            pm_mae_cache.append(pm_mae)
+
+        if len(pm_rmse_cache) == 1:
+            pm_rmse = np.mean((pm_rmse_cache[0], pm_rmse))
+            errors['Persistence Model RMSE'].append(pm_rmse)
+            pm_rmse_cache = []
+        elif len(pm_rmse_cache) == 0:
+            pm_rmse_cache.append(pm_rmse)
+
+        if len(model_mae_cache) == 1:
+            mae = np.mean((model_mae_cache[0], mae))
+            errors[f'{model.__class__.__name__} MAE'].append(mae)
+            model_mae_cache = []
+        elif len(model_mae_cache) == 0:
+            model_mae_cache.append(mae)
+
+        if len(model_rmse_cache) == 1:
+            rmse = np.mean((model_rmse_cache[0], rmse))
+            errors[f'{model.__class__.__name__} RMSE'].append(rmse)
+            model_rmse_cache = []
+        elif len(model_rmse_cache) == 0:
+            model_rmse_cache.append(rmse)
+
+
         errors['date'].append(date)
-        errors[f'{model.__class__.__name__} MAE'].append(mae)
-        errors[f'{model.__class__.__name__} RMSE'].append(rmse)
-        errors['Persistence Model MAE'].append(pm_mae)
-        errors['Persistence Model RMSE'].append(pm_rmse)
-        errors['training observations'].append(train_size)
-        errors['testing observations'].append(test_size)
 
     return errors

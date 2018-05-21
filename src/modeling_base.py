@@ -430,27 +430,58 @@ def iterative_testing(model, df, target_col, test_dates, num_units, units, n_job
     cols = list(df.columns)
     cols.remove(target_col)
 
+    pm_mae_cache = []
+    pm_rmse_cache = []
+    model_mae_cache = []
+    model_rmse_cache = []
+
     for date in test_dates:
         X, y = create_X_y(df, cols, target_col, date, num_units, units, same=same)
         X.drop(['final_date','Date'], axis=1, inplace=True)
 
         mae, rmse, pm_mae, pm_rmse, scores = test_model(model, X, y, n_jobs)
 
+
         print("{} Testing MAE | {:.4f}".format(model.__class__.__name__, mae))
         print("Persistence Model MAE | {:.4f}".format(pm_mae))
         print("{} Testing RMSE | {:.4f}".format(model.__class__.__name__, rmse))
         print("Persistence Model RMSE | {:.4f}".format(pm_rmse))
 
+        if len(pm_mae_cache) == 1:
+            pm_mae = np.mean((pm_mae_cache[0], pm_mae))
+            errors['Persistence Model MAE'].append(pm_mae)
+            pm_mae_cache = []
+        elif len(pm_mae_cache) == 0:
+            pm_mae_cache.append(pm_mae)
+
+        if len(pm_rmse_cache) == 1:
+            pm_rmse = np.mean((pm_rmse_cache[0], pm_rmse))
+            errors['Persistence Model RMSE'].append(pm_rmse)
+            pm_rmse_cache = []
+        elif len(pm_rmse_cache) == 0:
+            pm_rmse_cache.append(pm_rmse)
+
+        if len(model_mae_cache) == 1:
+            mae = np.mean((model_mae_cache[0], mae))
+            errors[f'{model.__class__.__name__} MAE'].append(mae)
+            model_mae_cache = []
+        elif len(model_mae_cache) == 0:
+            model_mae_cache.append(mae)
+
+        if len(model_rmse_cache) == 1:
+            rmse = np.mean((model_rmse_cache[0], rmse))
+            errors[f'{model.__class__.__name__} RMSE'].append(rmse)
+            model_rmse_cache = []
+        elif len(model_rmse_cache) == 0:
+            model_rmse_cache.append(rmse)
+
+
         errors['date'].append(date)
-        errors[f'{model.__class__.__name__} MAE'].append(mae)
-        errors[f'{model.__class__.__name__} RMSE'].append(rmse)
-        errors['Persistence Model MAE'].append(pm_mae)
-        errors['Persistence Model RMSE'].append(pm_rmse)
 
     return errors
 
 
-def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc, savefig=False):
+def error_plot(error_dict, colors, title, xlab, ylab, savefig=False):
     '''
     Plots the errors of two model against each other
 
@@ -469,10 +500,6 @@ def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc
         Label for x-axis
     ylab : (str)
         Label for y-axis
-    legend_x_loc : (int/float)
-        x-axis coordinate for the legend
-    legend_y_loc : (int/float)
-        y-axis coordinate for the legend
     savefig : (bool/str)
         If False default, image will be displayed and not saved. If the
         user would like the image saved, pass the filepath as string to
@@ -490,11 +517,12 @@ def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc
         ax.plot(array, '-o', c=colors[counter], label=f"{name}")
         counter +=1
 
-    plt.xlabel(xlab, fontweight='bold', fontsize=16)
-    plt.ylabel(ylab, fontweight='bold', rotation=0, fontsize=16)
+    plt.xticks(range(0,12), ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'])
+    plt.xlabel(xlab, fontweight='bold', fontsize=19)
+    plt.ylabel(ylab, fontweight='bold', rotation=0, fontsize=19)
+    ax.tick_params(axis='both', labelcolor='black', labelsize=15.0)
     ax.yaxis.set_label_coords(-0.105,0.5)
-    plt.suptitle(title, fontweight='bold', fontsize=18)
-    ax.legend(loc=(legend_x_loc, legend_y_loc))
+    plt.suptitle(title, fontweight='bold', fontsize=21)
     if savefig:
         plt.savefig(savefig)
     plt.show()
