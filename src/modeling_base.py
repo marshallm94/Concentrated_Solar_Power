@@ -88,7 +88,10 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
                 return X, y
             else:
                 start_month = date_dt.month - num_units
-                start_date = date_dt.replace(month=start_month)
+                try:
+                    start_date = date_dt.replace(month=start_month)
+                except ValueError as err:
+                    start_date = date_dt.replace(month=start_month, day=date_dt.day - 1)
                 start_date = pd.to_datetime(start_date)
 
                 mask1 = df['final_date'] >= start_date
