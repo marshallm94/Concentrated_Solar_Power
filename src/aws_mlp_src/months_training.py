@@ -35,4 +35,4 @@ if __name__ == "__main__":
         not_same_months_results[key] = mlp_error_dict
 
     with open('not_same_month_results_dict.pickle', 'wb') as f:
-        pickle.dump(not_same_months_results, f, protocal=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(not_same_months_results, f, protocol=pickle.HIGHEST_PROTOCOL)
