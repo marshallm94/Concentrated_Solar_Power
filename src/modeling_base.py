@@ -79,7 +79,7 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
                 start_year = date.year - 1
                 start_date = date_dt.replace(month=start_month, year=start_year)
                 start_date = pd.to_datetime(start_date)
-                print(start_date)
+
                 mask1 = df['final_date'] >= start_date
                 mask2 = df['final_date'] < date
 
