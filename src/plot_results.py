@@ -221,13 +221,15 @@ if __name__ == "__main__":
 
     results = get_pickle_files("../pickle_results/")
     total = format_dict_for_plot(results, ['RMSE', 'MAE'])
+    units = ['month','week','day','hour']
+    for unit in units:
+        time_dict = separate_dict(unit, total)
+        plot_dict = create_mean_pairs(time_dict)
+        title = unit.capitalize() + "s"
+        dict_plot(plot_dict, 'Greens', "Reds", f"MAE & RMSE Over Multiple {title}", "Month", r"$\frac{Watts}{Meter^2}$")
+
     years = separate_dict('year', total)
     new_years = create_mean_pairs(years)
-    # months = time_dict('month', total)
-    # weeks = time_dict('week', total)
-    # days = time_dict('day', total)
-    # hours = time_dict('hour', total)
-    #
-    # dict_plot(same_years, 'Greens', "Reds", "Neural Network vs Persistence Model Errors | Years Dataset", "Testing Period", r"$\frac{Watts}{Meter^2}$", "../images/boostrapped_nn_errors.png")
-    # dict_plot(new_years, 'Greens', "Reds", "MAE & RMSE Over Multiple Years", "Month", r"$\frac{Watts}{Meter^2}$", "../images/boostrapped_nn_errors.png")
-    dict_plot(new_years, 'Greens', "Reds", "MAE & RMSE Over Multiple Years", "Month", r"$\frac{Watts}{Meter^2}$")
+
+
+    dict_plot(new_years, 'Greens', "Reds", "MAE & RMSE Over Multiple Years", "Month", r"$\frac{Watts}{Meter^2}$", "../images/boostrapped_nn_errors.png")
