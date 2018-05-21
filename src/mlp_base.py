@@ -3,7 +3,6 @@ import numpy as np
 from modeling_base import *
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import train_test_split
-from keras.callbacks import EarlyStopping
 from keras.objectives import MSE, MAE
 from keras.models import Sequential
 from keras import metrics as met
@@ -50,7 +49,6 @@ def build_neural_network(n_predictors, hidden_layer_neurons, loss='mean_absolute
 
     return model
 
-# stop_criteria = EarlyStopping(monitor='val_loss', min_delta=0.00001)
 
 hidden_layer_neurons = [10, 40]
 
@@ -58,10 +56,9 @@ NN_dict = {'epochs': 38,
            'batch_size': 17,
            'shuffle': True,
            'validation_split': 0.2,
-           # 'callback': stop_criteria
 }
 
-test_dates = get_random_test_dates(5, 2017, (4, 20), 2)
+test_dates = get_random_test_dates(5, 2016, (4, 20), 2)
 
 def test_nn_model(model, X, y, fit_params=NN_dict):
     '''
@@ -102,11 +99,7 @@ def test_nn_model(model, X, y, fit_params=NN_dict):
               batch_size=fit_params['batch_size'],
               shuffle=fit_params['shuffle'],
               validation_split=fit_params['validation_split'],
-              # callbacks=[fit_params['callback']],
               verbose=1)
-
-
-    # evaluation = model.evaluate(x_test.values, y_test.values, verbose=1)
 
     y_hat = model.predict(x_test)
     mae = mean_absolute_error(y_test, y_hat)
