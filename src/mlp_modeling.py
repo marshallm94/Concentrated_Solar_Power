@@ -18,4 +18,4 @@ if __name__ == "__main__":
     mlp_errors_dict.pop('date')
     mlp_errors_dict.pop('training observations')
     mlp_errors_dict.pop('testing observations')
-    error_plot(mlp_errors_dict, ['red','orange','blue','green'], 'Average Neural Network vs Average Persistence Model Errors', "Month", r"$\frac{Watts}{Meter^2}$", 0.01, 0.375, "../images/nn_v_pm_test_errors.png")    
+    error_plot(mlp_errors_dict, ['red','orange','blue','green'], 'Average Neural Network vs Average Persistence Model Errors', "Month", r"$\frac{Watts}{Meter^2}$", "../images/nn_v_pm_test_errors.png")

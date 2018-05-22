@@ -16,4 +16,4 @@ if __name__ == "__main__":
 
     dates = rf_error_dict.pop('date')
 
-    error_plot(rf_error_dict, ['red','orange','blue','green'], 'Average Random Forest vs Average Persistence Model Errors', "Month", r"$\frac{Watts}{Meter^2}$", 0.01, 0.375, "../images/rf_v_pm_test_errors.png")    
+    error_plot(rf_error_dict, ['red','orange','blue','green'], 'Average Random Forest vs Average Persistence Model Errors', "Month", r"$\frac{Watts}{Meter^2}$", 0.01, 0.375, "../images/rf_v_pm_test_errors.png")

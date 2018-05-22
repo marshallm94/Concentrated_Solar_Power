@@ -67,14 +67,16 @@ def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
         ax.plot(subset[variable], '-o', label=variable)
         ax.xaxis.set_major_locator(hours)
         ax.xaxis.set_major_formatter(hour_formatter)
-    plt.xlabel(xlab, fontweight="bold", fontsize=16)
-    plt.ylabel(ylab, fontweight="bold", rotation=0, fontsize=16)
+    plt.xlabel(xlab, fontweight='bold', fontsize=19)
+    plt.ylabel(ylab, fontweight='bold', rotation=0, fontsize=19)
+    ax.tick_params(axis='both', labelcolor='black', labelsize=15.0)
     ax.yaxis.set_label_coords(-0.105,0.5)
     plt.legend()
-    plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B, %d %Y"), fontweight='bold', fontsize=18)
-    plt.show()
+    plt.suptitle(datetime.strptime(date, "%Y-%m-%d").strftime("%B %d, %Y"), fontweight='bold', fontsize=21)
     if savefig:
         plt.savefig(savefig)
+    else:
+        plt.show()
 
 
 def distribution_plot(df, column_name, target_column, xlab, ylab, title, filename=False, plot_type="box", order=None):
@@ -131,3 +133,5 @@ if __name__ == "__main__":
     heatmap(df, "../images/heatmap.png")
 
     plot_day("2016-12-05", (4, 20), ['DNI', 'Solar Zenith Angle','Pressure', 'Relative Humidity'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", df, "../images/irradiance_20161205")
+
+    plot_day("2016-07-04", (4, 20), ['DNI', 'Solar Zenith Angle','Pressure', 'Relative Humidity'], r"$Hour$", r"$\frac{Watts}{Meter^2}$", df, "../images/irradiance_20160704")
