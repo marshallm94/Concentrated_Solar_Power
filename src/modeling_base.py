@@ -525,7 +525,8 @@ def error_plot(error_dict, colors, title, xlab, ylab, savefig=False):
     plt.suptitle(title, fontweight='bold', fontsize=21)
     if savefig:
         plt.savefig(savefig)
-    plt.show()
+    else:
+        plt.show()
 
 
 def get_random_test_dates(seed, year, hour_range, num_days_per_month):

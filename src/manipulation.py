@@ -213,9 +213,10 @@ def heatmap(df, filename=False):
     plt.yticks(rotation=0)
     plt.xticks(rotation=0)
     plt.suptitle("Correlation Between Attributes", fontweight="bold", fontsize=16)
-    plt.show()
     if filename:
         plt.savefig(filename, orientation='landscape')
+    else:
+        plt.show()
 
 
 if __name__ == "__main__":
