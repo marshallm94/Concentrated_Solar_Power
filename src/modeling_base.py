@@ -9,8 +9,9 @@ import random
 
 def create_years_dataset(df, columns, target, date, num_units):
     '''
-    Helper function for create_X_y(). Creates a subset of df that goes back
-    num_units years from date.
+    Helper function for create_X_y().
+
+    Creates a subset of df that goes back num_units years from date.
 
     Parameters:
     ----------
@@ -46,6 +47,84 @@ def create_years_dataset(df, columns, target, date, num_units):
         X = df[mask1 & mask2][columns]
 
         return X, y
+
+
+def create_months_dataset(df, columns, target, date, num_units, same=True):
+    '''
+    Helper function for create_X_y().
+
+    If same=True, Creates a subset of df that only contains the month of date,
+    for all years from the year of date minus num_units to the year of date. If
+    same=False, goes back num_units months from date.
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+        Contains columns specified in columns and target
+    columns : (list)
+        A list of strings specifying which columns should be included in the X
+        matrix as predictive attributes
+    target : (str)
+        Target column within df
+    date : (pandas._libs.tslib.Timestamp)
+    num_units : (int)
+        Specifies the number of years to go back from date
+    same : (bool)
+        If True (default), num_units specifies how many years to go back from
+        date's month. If False, num_units specifies how many months to go back
+        from date
+
+    Returns:
+    ----------
+    X : (Pandas DataFrame)
+        A DataFrame with the values of the columns specified
+    y : (Pandas Series)
+        A 1 dimensional Seriess with the values of the target column
+    '''
+    date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
+
+    if same:
+        start_year = date.year - num_units
+
+        mask1 = df['Year'] >= start_year
+        mask2 = df['Year'] <= date.year
+        mask3 = df['Month'] == date.month
+        mask4 = df['final_date'] < date
+
+        y = df[mask1 & mask2 & mask3 & mask4].pop(target)
+        X = df[mask1 & mask2 & mask3 & mask4][columns]
+
+        return X, y
+
+    if not same:
+        if date_dt.month - num_units < 1:
+            start_month = date_dt.month + 12 - num_units
+            start_year = date.year - 1
+            start_date = date_dt.replace(month=start_month, year=start_year)
+            start_date = pd.to_datetime(start_date)
+
+            mask1 = df['final_date'] >= start_date
+            mask2 = df['final_date'] < date
+
+            y = df[mask1 & mask2].pop(target)
+            X = df[mask1 & mask2][columns]
+
+            return X, y
+        else:
+            start_month = date_dt.month - num_units
+            try:
+                start_date = date_dt.replace(month=start_month)
+            except ValueError as err:
+                start_date = date_dt.replace(month=start_month, day=date_dt.day - 1)
+            start_date = pd.to_datetime(start_date)
+
+            mask1 = df['final_date'] >= start_date
+            mask2 = df['final_date'] < date
+
+            y = df[mask1 & mask2].pop(target)
+            X = df[mask1 & mask2][columns]
+
+            return X, y
 
 
 def create_X_y(df, columns, target, date, num_units, units, same=True):
@@ -86,63 +165,52 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
     date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
 
     if units == 'years':
-        # available_years = set(df['Year'])
-        # if date.year - num_units not in available_years:
-        #     print("\nStart year not in data set")
-        #     return None, None
-        # else:
-        #     train_start = date.replace(year=date.year - num_units)
-        #
-        #     mask1 = df['final_date'] >= pd.to_datetime(train_start)
-        #     mask2 = df['final_date'] < date
-        #
-        #     y = df[mask1 & mask2].pop(target)
-        #     X = df[mask1 & mask2][columns]
-        #
-        #     return X, y
-            X, y = create_years_dataset(df, columns, target, date, num_units)
-            return X, y
+
+        X, y = create_years_dataset(df, columns, target, date, num_units)
+        return X, y
 
     elif units == 'months':
-        if same:
-            start_year = date.year - num_units
-
-            mask1 = df['Year'] >= start_year
-            mask2 = df['Year'] <= date.year
-            mask3 = df['Month'] == date.month
-            mask4 = df['final_date'] < date
-
-            y = df[mask1 & mask2 & mask3 & mask4].pop(target)
-            X = df[mask1 & mask2 & mask3 & mask4][columns]
-            return X, y
-
-        if not same:
-            if date_dt.month - num_units < 1:
-                start_month = date_dt.month + 12 - num_units
-                start_year = date.year - 1
-                start_date = date_dt.replace(month=start_month, year=start_year)
-                start_date = pd.to_datetime(start_date)
-
-                mask1 = df['final_date'] >= start_date
-                mask2 = df['final_date'] < date
-
-                y = df[mask1 & mask2].pop(target)
-                X = df[mask1 & mask2][columns]
-                return X, y
-            else:
-                start_month = date_dt.month - num_units
-                try:
-                    start_date = date_dt.replace(month=start_month)
-                except ValueError as err:
-                    start_date = date_dt.replace(month=start_month, day=date_dt.day - 1)
-                start_date = pd.to_datetime(start_date)
-
-                mask1 = df['final_date'] >= start_date
-                mask2 = df['final_date'] < date
-
-                y = df[mask1 & mask2].pop(target)
-                X = df[mask1 & mask2][columns]
-                return X, y
+        X, y = create_months_dataset(df, columns, target, date, num_units, same=same)
+        return X, y
+        # if same:
+        #     start_year = date.year - num_units
+        #
+        #     mask1 = df['Year'] >= start_year
+        #     mask2 = df['Year'] <= date.year
+        #     mask3 = df['Month'] == date.month
+        #     mask4 = df['final_date'] < date
+        #
+        #     y = df[mask1 & mask2 & mask3 & mask4].pop(target)
+        #     X = df[mask1 & mask2 & mask3 & mask4][columns]
+        #     return X, y
+        #
+        # if not same:
+        #     if date_dt.month - num_units < 1:
+        #         start_month = date_dt.month + 12 - num_units
+        #         start_year = date.year - 1
+        #         start_date = date_dt.replace(month=start_month, year=start_year)
+        #         start_date = pd.to_datetime(start_date)
+        #
+        #         mask1 = df['final_date'] >= start_date
+        #         mask2 = df['final_date'] < date
+        #
+        #         y = df[mask1 & mask2].pop(target)
+        #         X = df[mask1 & mask2][columns]
+        #         return X, y
+        #     else:
+        #         start_month = date_dt.month - num_units
+        #         try:
+        #             start_date = date_dt.replace(month=start_month)
+        #         except ValueError as err:
+        #             start_date = date_dt.replace(month=start_month, day=date_dt.day - 1)
+        #         start_date = pd.to_datetime(start_date)
+        #
+        #         mask1 = df['final_date'] >= start_date
+        #         mask2 = df['final_date'] < date
+        #
+        #         y = df[mask1 & mask2].pop(target)
+        #         X = df[mask1 & mask2][columns]
+        #         return X, y
 
     elif units == 'weeks':
         if same:
