@@ -445,27 +445,6 @@ def create_future_target(df, column, shift, row_time_steps):
     return out
 
 
-def sequential_impute(df, col):
-    '''
-    Replaces NaN values with the value most recently seen in the data set.
-    Assumes DataFrame has a sequential aspect to it.
-
-    Parameters:
-    ----------
-    df : (Pandas DataFrame)
-        DataFrame containing col
-    col : (str)
-        The column name within df for which sequential imputing will be
-        performed
-
-    Returns:
-    ----------
-    df : (Pandas DataFrame)
-    '''
-    out = df.copy()
-    values = out[col].values
-
-
 def test_model(model, X, y, n_jobs):
     '''
     Evaluates the model specified using 5-fold cross validation and tests model
