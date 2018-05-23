@@ -273,6 +273,40 @@ def create_days_dataset(df, columns, target, date, num_units, same=True):
         return X, y
 
 
+def create_hours_dataset(df, columns, target, date, num_units):
+    '''
+    Helper function for create_X_y().
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+        Contains columns specified in columns and target
+    columns : (list)
+        A list of strings specifying which columns should be included in the X
+        matrix as predictive attributes
+    target : (str)
+        Target column within df
+    date : (pandas._libs.tslib.Timestamp)
+    num_units : (int)
+        Specifies the number of hours to go back from date
+
+    Returns:
+    ----------
+    X : (Pandas DataFrame)
+        A DataFrame with the values of the columns specified
+    y : (Pandas Series)
+        A 1 dimensional Seriess with the values of the target column
+    '''
+    start = date + pd.Timedelta(f"-{num_units} hours")
+    mask1 = df['final_date'] >= pd.to_datetime(start)
+    mask2 = df['final_date'] < pd.to_datetime(date)
+
+    y = df[mask1 & mask2].pop(target)
+    X = df[mask1 & mask2][columns]
+
+    return X, y
+
+
 def create_X_y(df, columns, target, date, num_units, units, same=True):
     '''
     Creates a subset of df for training and testing a model.
@@ -296,10 +330,8 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
             'days',
             'hours'
     same : (bool)
-        If True, units will go back incrementally by years.
-        example: if date = "2008-08-13", num_units = 2, units = "months" and
-        same = True, then the data set will be composed of data from August
-        (8th month) of 2007 and 2006.
+        Interpretation varies on units specified; see docstring for helper
+        functions
 
     Returns:
     ----------
@@ -308,8 +340,6 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
     y : (Pandas Series)
         A 1 dimensional Seriess with the values of the target column
     '''
-    date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
-
     if units == 'years':
 
         X, y = create_years_dataset(df, columns, target, date, num_units)
@@ -332,12 +362,7 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
 
     elif units == 'hours':
 
-        start = date + pd.Timedelta(f"-{num_units} hours")
-        mask1 = df['final_date'] >= pd.to_datetime(start)
-        mask2 = df['final_date'] < pd.to_datetime(date)
-
-        y = df[mask1 & mask2].pop(target)
-        X = df[mask1 & mask2][columns]
+        X, y = create_hours_dataset(df, columns, target, date, num_units)
         return X, y
 
 

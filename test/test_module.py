@@ -171,14 +171,14 @@ class TestCreateXY(unittest.TestCase):
 
         self.assertIsNone(test_x)
 
-    # def test_hours_15(self):
-    #     num_units = 15
-    #
-    #     test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=num_units, units='hours', same=False)
-    #
-    #     hours_set = set([i for i in range(9, 24)])
-    #
-    #     self.assertEqual(set(test_x['Hour'].values), hours_set)
+    def test_hours_15(self):
+        num_units = 15
+
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=num_units, units='hours', same=False)
+
+        hours_set = set([i for i in range(9, 24)])
+
+        self.assertEqual(set(test_x['Hour'].values), hours_set)
 
 if __name__ == '__main__':
     unittest.main()
