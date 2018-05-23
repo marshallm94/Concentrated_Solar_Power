@@ -7,10 +7,50 @@ from datetime import datetime
 from sklearn.model_selection import cross_validate, train_test_split
 import random
 
+def create_years_dataset(df, columns, target, date, num_units):
+    '''
+    Helper function for create_X_y(). Creates a subset of df that goes back
+    num_units years from date.
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+        Contains columns specified in columns and target
+    columns : (list)
+        A list of strings specifying which columns should be included in the X
+        matrix as predictive attributes
+    target : (str)
+        Target column within df
+    date : (pandas._libs.tslib.Timestamp)
+    num_units : (int)
+        Specifies the number of years to go back from date
+
+    Returns:
+    ----------
+    X : (Pandas DataFrame)
+        A DataFrame with the values of the columns specified
+    y : (Pandas Series)
+        A 1 dimensional Seriess with the values of the target column
+    '''
+    available_years = set(df['Year'])
+    if date.year - num_units not in available_years:
+        print("\nStart year not in data set")
+        return None, None
+    else:
+        train_start = date.replace(year=date.year - num_units)
+
+        mask1 = df['final_date'] >= pd.to_datetime(train_start)
+        mask2 = df['final_date'] < date
+
+        y = df[mask1 & mask2].pop(target)
+        X = df[mask1 & mask2][columns]
+
+        return X, y
+
 
 def create_X_y(df, columns, target, date, num_units, units, same=True):
     '''
-    Creates a subset of df for training a model.
+    Creates a subset of df for training and testing a model.
 
     Parameters:
     ----------
@@ -46,18 +86,21 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
     date_dt = datetime.strptime(datetime.strftime(date, "%Y-%m-%d"), "%Y-%m-%d")
 
     if units == 'years':
-        available_years = set(df['Year'])
-        if date.year - num_units not in available_years:
-            print("\nStart year not in data set")
-            return None, None
-        else:
-            train_start = date.replace(year=date.year - num_units)
-
-            mask1 = df['final_date'] >= pd.to_datetime(train_start)
-            mask2 = df['final_date'] < date
-
-            y = df[mask1 & mask2].pop(target)
-            X = df[mask1 & mask2][columns]
+        # available_years = set(df['Year'])
+        # if date.year - num_units not in available_years:
+        #     print("\nStart year not in data set")
+        #     return None, None
+        # else:
+        #     train_start = date.replace(year=date.year - num_units)
+        #
+        #     mask1 = df['final_date'] >= pd.to_datetime(train_start)
+        #     mask2 = df['final_date'] < date
+        #
+        #     y = df[mask1 & mask2].pop(target)
+        #     X = df[mask1 & mask2][columns]
+        #
+        #     return X, y
+            X, y = create_years_dataset(df, columns, target, date, num_units)
             return X, y
 
     elif units == 'months':
