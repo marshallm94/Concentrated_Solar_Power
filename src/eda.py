@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from manipulation import heatmap
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -79,52 +78,35 @@ def plot_day(date, hour_range, variables, xlab, ylab, df, savefig=False):
         plt.show()
 
 
-def distribution_plot(df, column_name, target_column, xlab, ylab, title, filename=False, plot_type="box", order=None):
+def heatmap(df, filename=False):
     '''
-    Create various plot types leveraging matplotlib and seaborn.
+    Creates a heatmap of the correlation matrix of a DataFrame.
 
     Parameters:
     ----------
     df : (Pandas DataFrame)
-    column_name : (str)
-        A column in df that you want to have on the x-axis
-    target_column : (str)
-        A column in df that you want to have on the y_axis
-    xlab : (str)
-        X-axis label
-    ylab : (str)
-        Y-axis label
-    title : (str)
-        Title for the plot
     filename : (str)
-        The absolute or relative path to which you would like to save the image
-    plot_type : (str)
-        Can be one of the following: "box", "violin" or "bar"
-    order : (None / list)
-        the ordering of the variable on the x-axis
+        The path to which you would like to save the image.
 
     Returns:
     ----------
     None
     '''
-    fig = plt.figure(figsize=(13,6))
-    ax = fig.add_subplot(111)
-    if plot_type == "box":
-        ax = sns.boxplot(df[column_name], df[target_column], order=order)
-    elif plot_type == "violin":
-        ax = sns.violinplot(df[column_name], df[target_column])
-    elif plot_type == "bar":
-        ax = sns.barplot(df[column_name], df[target_column], palette="Greens_d", order=order)
-    ax.set_xlabel(xlab, fontweight="bold", fontsize=14)
-    ax.set_ylabel(ylab, fontweight="bold", fontsize=14)
-    plt.xticks(rotation=75)
-    plt.suptitle(title, fontweight="bold", fontsize=16)
+    corr = df.corr()
+    ylabels = ["{} = {}".format(col, x + 1) for x, col in enumerate(list(corr.columns))]
+    xlabels = [str(x + 1) for x in range(len(ylabels))]
+    mask = np.zeros_like(corr, dtype=np.bool)
+    mask[np.triu_indices_from(mask)] = True
+    f, ax = plt.subplots(figsize=(11, 6))
+    cmap = sns.diverging_palette(220, 10, as_cmap=True)
+    sns.heatmap(corr, mask=mask, cmap=cmap, xticklabels=xlabels, yticklabels=ylabels, vmax=0.3, center=0, square=True, linewidths=0.5, cbar_kws={"shrink": 0.5})
+    plt.yticks(rotation=0)
+    plt.xticks(rotation=0)
+    plt.suptitle("Correlation Between Attributes", fontweight="bold", fontsize=16)
     if filename:
-        plt.savefig(filename)
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.9)
-    plt.show()
-
+        plt.savefig(filename, orientation='landscape')
+    else:
+        plt.show()
 
 if __name__ == "__main__":
 
