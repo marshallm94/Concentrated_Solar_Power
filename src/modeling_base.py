@@ -53,10 +53,6 @@ def create_months_dataset(df, columns, target, date, num_units, same=True):
     '''
     Helper function for create_X_y().
 
-    If same=True, Creates a subset of df that only contains the month of date,
-    for all years from the year of date minus num_units to the year of date. If
-    same=False, goes back num_units months from date.
-
     Parameters:
     ----------
     df : (Pandas DataFrame)
@@ -70,9 +66,9 @@ def create_months_dataset(df, columns, target, date, num_units, same=True):
     num_units : (int)
         Specifies the number of years/months to go back from date
     same : (bool)
-        If True (default), num_units specifies how many years to go back from
-        date's month. If False, num_units specifies how many months to go back
-        from date
+        If True (default), Creates a subset of df that only contains the month
+        of date, for all years from the year of date minus num_units to the
+        year of date. If same=False, goes back num_units months from date.
 
     Returns:
     ----------
@@ -131,10 +127,6 @@ def create_weeks_dataset(df, columns, target, date, num_units, same=True):
     '''
     Helper function for create_X_y().
 
-    If same=True, creates a date range that is (date - 3 days) to
-    (date + 3 days), and goes back num_units years, returning that week range
-    for every year. If same=False, goes back num_units weeks from date
-
     Parameters:
     ----------
     df : (Pandas DataFrame)
@@ -148,9 +140,9 @@ def create_weeks_dataset(df, columns, target, date, num_units, same=True):
     num_units : (int)
         Specifies the number of years/weeks to go back from date
     same : (bool)
-        If True (default), num_units specifies how many years to go back from
-        the week surrounding date. If False, num_units specifies how many
-        weeks to go back from date
+        If True (default), creates a date range that is (date - 3 days) to
+        (date + 3 days), and goes back num_units years, returning that week
+        range for every year. If same=False, goes back num_units weeks from date
 
     Returns:
     ----------
@@ -221,6 +213,66 @@ def create_weeks_dataset(df, columns, target, date, num_units, same=True):
         return X, y
 
 
+def create_days_dataset(df, columns, target, date, num_units, same=True):
+    '''
+    Helper function for create_X_y().
+
+    Parameters:
+    ----------
+    df : (Pandas DataFrame)
+        Contains columns specified in columns and target
+    columns : (list)
+        A list of strings specifying which columns should be included in the X
+        matrix as predictive attributes
+    target : (str)
+        Target column within df
+    date : (pandas._libs.tslib.Timestamp)
+    num_units : (int)
+        Specifies the number of years/days to go back from date
+    same : (bool)
+        If True (default), creates a subset of df that consists of the same day
+        for every year in date.year minus num_units to date.year. If
+        same=False, creates a subset of df that goes back num_units days from
+        date
+
+    Returns:
+    ----------
+    X : (Pandas DataFrame)
+        A DataFrame with the values of the columns specified
+    y : (Pandas Series)
+        A 1 dimensional Seriess with the values of the target column
+    '''
+    if same:
+
+        dates = []
+        for year in range(1, num_units + 1):
+            new_date = date.replace(year=date.year - year)
+            dates.append(new_date.strftime("%Y-%m-%d"))
+
+        frames = []
+        for day in dates:
+            frame = df[df['Date'] == day]
+            frames.append(frame)
+
+        final = pd.concat(frames)
+        final = final[final['final_date'] < date]
+
+        y = final.pop(target)
+        X = final[columns]
+
+        return X, y
+
+    if not same:
+        train_start = date + pd.Timedelta(f"-{num_units} days")
+        mask1 = df['final_date'] >= train_start
+        mask2 = df['final_date'] < date
+
+        y = df[mask1 & mask2].pop(target)
+        X = df[mask1 & mask2][columns]
+
+        return X, y
+
+
 def create_X_y(df, columns, target, date, num_units, units, same=True):
     '''
     Creates a subset of df for training and testing a model.
@@ -272,93 +324,11 @@ def create_X_y(df, columns, target, date, num_units, units, same=True):
 
         X, y = create_weeks_dataset(df, columns, target, date, num_units, same=same)
         return X, y
-        # if same:
-        #     start_date = date + pd.Timedelta("-3 days")
-        #     end_date = date + pd.Timedelta("+3 days")
-        #     days = list(pd.date_range(start_date, end_date))
-        #
-        #     if start_date.year < end_date.year:
-        #         years = [(year, year + 1) for year in range(start_date.year - num_units, end_date.year)]
-        #         days2 = []
-        #         for start_year, end_year in years:
-        #             for day in days:
-        #                 if day.month == 12:
-        #                     new_day = day.replace(year=start_year)
-        #                     days2.append(new_day)
-        #                 else:
-        #                     new_day = day.replace(year=end_year)
-        #                     days2.append(new_day)
-        #         days2 = [datetime.strftime(i, "%Y-%m-%d") for i in days2]
-        #
-        #     elif start_date.year > end_date.year:
-        #         years = [(year, year + 1) for year in range(start_date.year - num_units, end_date.year)]
-        #         days2 = []
-        #         for start_year, end_year in years:
-        #             for day in days:
-        #                 if day.month == 12:
-        #                     new_day = day.replace(year=start_year)
-        #                     days2.append(new_day)
-        #                 else:
-        #                     new_day = day.replace(year=end_year)
-        #                     days2.append(new_day)
-        #         days2 = [datetime.strftime(i, "%Y-%m-%d") for i in days2]
-        #     else:
-        #         years = [year for year in range(date.year - num_units, date.year)]
-        #         for year in years:
-        #             start_date = (date + pd.Timedelta("-3 days")).replace(year=year)
-        #             end_date = (date + pd.Timedelta("+3 days")).replace(year=year)
-        #             date_range = pd.date_range(start_date, end_date)
-        #             for day in date_range:
-        #                 days.append(day)
-        #         days2 = [datetime.strftime(i, "%Y-%m-%d") for i in days]
-        #     frames = []
-        #     for day in days2:
-        #         frame = df[df['Date'] == day]
-        #         frames.append(frame)
-        #     final = pd.concat(frames)
-        #     final = final[final['final_date'] < date]
-        #     y = final.pop(target)
-        #     X = final[columns]
-        #     return X, y
-        #
-        # if not same:
-        #     train_start = pd.to_datetime(date) + pd.Timedelta("-{} days".format(num_units * 7))
-        #
-        #     mask1 = df['final_date'] >= pd.to_datetime(train_start)
-        #     mask2 = df['final_date'] < date
-        #
-        #     y = df[mask1 & mask2].pop(target)
-        #     X = df[mask1 & mask2][columns]
-        #     return X, y
 
     elif units == 'days':
-        if same:
 
-            dates = []
-            for year in range(1, num_units + 1):
-                new_date = date.replace(year=date.year - year)
-                dates.append(new_date.strftime("%Y-%m-%d"))
-
-            frames = []
-            for day in dates:
-                frame = df[df['Date'] == day]
-                frames.append(frame)
-
-            final = pd.concat(frames)
-            final = final[final['final_date'] < date]
-
-            y = final.pop(target)
-            X = final[columns]
-            return X, y
-
-        if not same:
-            train_start = date + pd.Timedelta(f"-{num_units} days")
-            mask1 = df['final_date'] >= train_start
-            mask2 = df['final_date'] < date
-
-            y = df[mask1 & mask2].pop(target)
-            X = df[mask1 & mask2][columns]
-            return X, y
+        X, y = create_days_dataset(df, columns, target, date, num_units, same=same)
+        return X, y
 
     elif units == 'hours':
 

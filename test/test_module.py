@@ -130,24 +130,24 @@ class TestCreateXY(unittest.TestCase):
         expected_dates = set(expected_dates[:-1])
 
         self.assertEqual(set(test_x['Date'].values), expected_dates)
-    
-    # def test_days_2_sameTrue(self):
-    #
-    #     test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=True)
-    #
-    #     test_dates_set = set(['2007-08-13', '2006-08-13'])
-    #
-    #     print(test_x.columns)
-    #
-    #     self.assertEqual(set(test_x['Date'].values), test_dates_set)
-    #
-    # def test_days_2_sameFalse(self):
-    #
-    #     test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=False)
-    #
-    #     test_dates_set =  set(["2008-08-12", "2008-08-11"])
-    #
-    #     self.assertEqual(set(test_x['Date'].values), test_dates_set)
+
+    def test_days_2_sameTrue(self):
+
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=True)
+
+        test_dates_set = set(['2007-08-13', '2006-08-13'])
+
+        print(test_x.columns)
+
+        self.assertEqual(set(test_x['Date'].values), test_dates_set)
+
+    def test_days_2_sameFalse(self):
+
+        test_x, test_y = create_X_y(df=self.df, columns=self.columns, target=self.target, date=self.date, num_units=self.num_units, units='days', same=False)
+
+        test_dates_set =  set(["2008-08-12", "2008-08-11"])
+
+        self.assertEqual(set(test_x['Date'].values), test_dates_set)
 
     def test_years_2(self):
 
