@@ -97,9 +97,9 @@ A Multi Layer Perceptron (MLP) was developed a few years ago to predict irradian
 
 Both the Random Forest and the MLP were able to beat the Persistence Model with respect to both RMSE and MAE across all months in the dataset, shown in the two graphs below. Although both models perform similarly, the MLP does have a slight edge on the Random Forest, most noticeably in the later months of the year.
 
-![](images/rf_v_pm_test_errors.png)
+![](images/mean_absolute_errors.png)
 
-![](images/nn_v_pm_test_errors.png)
+![](images/root_mean_squared_errors.png)
 
 Once thing I was curious about was whether including multiple years in the dataset that the MLP was trained on had a noticeable effect on the errors. For every group of lines in the plot below, I varied whether 1,2,3 ... etc. years were included in the dataset that the model trained and tested on. The errors lines show that the model is relatively robust to the number of years that are included in the dataset.
 
