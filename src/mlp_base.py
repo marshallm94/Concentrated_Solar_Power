@@ -58,7 +58,9 @@ NN_dict = {'epochs': 38,
            'validation_split': 0.2,
 }
 
-test_dates = get_random_test_dates(5, 2016, (4, 20), 2)
+max_year = 2016
+
+test_dates = get_random_test_dates(5, max_year, (4, 20), 2)
 
 def test_nn_model(model, X, y, fit_params=NN_dict):
     '''

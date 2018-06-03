@@ -108,6 +108,7 @@ def heatmap(df, filename=False):
     else:
         plt.show()
 
+
 if __name__ == "__main__":
 
     df = format_nrel_dataframe("../data/2003_2016.csv")

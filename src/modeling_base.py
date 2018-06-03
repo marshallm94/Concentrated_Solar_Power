@@ -625,7 +625,7 @@ def iterative_testing(model, df, target_col, test_dates, num_units, units, n_job
     return errors
 
 
-def error_plot(error_dict, colors, title, xlab, ylab, savefig=False):
+def error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc, savefig=False):
     '''
     Plots the errors of two model against each other
 
@@ -667,6 +667,7 @@ def error_plot(error_dict, colors, title, xlab, ylab, savefig=False):
     ax.tick_params(axis='both', labelcolor='black', labelsize=15.0)
     ax.yaxis.set_label_coords(-0.105,0.5)
     plt.suptitle(title, fontweight='bold', fontsize=21)
+    plt.legend(bbox_to_anchor=(legend_x_loc, legend_y_loc))
     if savefig:
         plt.savefig(savefig)
     else:
