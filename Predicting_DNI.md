@@ -101,13 +101,28 @@ Both the Random Forest and the MLP were able to beat the Persistence Model with 
 
 ![](images/root_mean_squared_errors.png)
 
-Once thing I was curious about was whether including multiple years in the dataset that the MLP was trained on had a noticeable effect on the errors. For every group of lines in the plot below, I varied whether 1,2,3 ... etc. years were included in the dataset that the model trained and tested on. The errors lines show that the model is relatively robust to the number of years that are included in the dataset.
+#### Going Further
 
-![](images/boostrapped_nn_errors.png)
+One thing I was curious about was whether predicting further into the future would have a drastic shift in the errors, both MAE and RMSE, of the Neural Network.
+
+###### Mean Absolute Errors as Time Increases
+
+![](images/t_plus_30_mae_errors.png)
+![](images/t_plus_60_mae_errors.png)
+![](images/t_plus_90_mae_errors.png)
+![](images/t_plus_120_mae_errors.png)
+
+###### Root Mean Squared Errors as Time Increases
+
+The same pattern, slight fluctuations in the error rate as DNI is predicted further into the future can be seen with respect to RMSE, and once again, the gap between my model and the benchmark widens as we look further into the future.
+
+![](images/t_plus_30_rmse_errors.png)
+![](images/t_plus_60_rmse_errors.png)
+![](images/t_plus_90_rmse_errors.png)
+![](images/t_plus_120_rmse_errors.png)
 
 ### Next Steps
 
-* Forecast DNI further into the future (30 minute increments up to 2 hours)
 * See if a LSTM outperforms my optimized MLP
 * Bring in data from other locations (lat/long)
     * create a model for a user inputted latitude and longitude
