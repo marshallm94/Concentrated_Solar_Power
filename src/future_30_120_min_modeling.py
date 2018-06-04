@@ -64,6 +64,55 @@ def separate_mae_rmse(parent_dict):
     return mae_errors, rmse_errors
 
 
+def adj_error_plot(error_dict, colors, title, xlab, ylab, legend_x_loc, legend_y_loc, savefig=False):
+    '''
+    Plots the errors of two model against each other
+
+    Parameters:
+    ----------
+    error_dict : (dict)
+        A dictionary where the keys are the names of the error arrays
+        (i.e 'Linear Regression Error') and the values are an array_like
+        (array/list) sequence of errors
+    colors : (list)
+        List of strings equal to number of keys in error_dict
+        (one color for each array of model errors)
+    title : (str)
+        The title for the plot
+    xlab : (str)
+        Label for x-axis
+    ylab : (str)
+        Label for y-axis
+    savefig : (bool/str)
+        If False default, image will be displayed and not saved. If the
+        user would like the image saved, pass the filepath as string to
+        which the image should be saved.
+
+    Returns:
+    ----------
+    None
+    '''
+
+    fig, ax = plt.subplots(figsize=(12,8))
+    counter = 0
+
+    for name, array in error_dict.items():
+        ax.plot(array, '-o', c=colors[counter], label=f"{name}")
+        counter +=1
+
+    plt.xticks(range(0,12), ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sept','Oct','Nov','Dec'])
+    plt.yticks(range(15, 301, 20))
+    plt.xlabel(xlab, fontweight='bold', fontsize=19)
+    plt.ylabel(ylab, fontweight='bold', rotation=0, fontsize=19)
+    ax.tick_params(axis='both', labelcolor='black', labelsize=15.0)
+    ax.yaxis.set_label_coords(-0.105,0.5)
+    plt.suptitle(title, fontweight='bold', fontsize=21)
+    plt.legend(bbox_to_anchor=(legend_x_loc, legend_y_loc))
+    if savefig:
+        plt.savefig(savefig)
+    else:
+        plt.show()
+
 if __name__ == "__main__":
 
     errors_30_120_min = {}
@@ -97,6 +146,6 @@ if __name__ == "__main__":
         mae_plot_filename = f"../images/t_plus_{duration}_mae_errors.png"
         rmse_plot_filename = f"../images/t_plus_{duration}_rmse_errors.png"
 
-        error_plot(mae_errors, ['orange','blue'], suptitle + " MAE", "Month", r"$\frac{Watts}{Meter^2}$", 0.3, 0.75, mae_plot_filename)
+        adj_error_plot(mae_errors, ['orange','blue'], suptitle + " MAE", "Month", r"$\frac{Watts}{Meter^2}$", 1, 1, mae_plot_filename)
 
-        error_plot(rmse_errors, ['orange','blue'], suptitle + " RMSE", "Month", r"$\frac{Watts}{Meter^2}$", 0.325, 0.15, rmse_plot_filename)
+        adj_error_plot(rmse_errors, ['orange','blue'], suptitle + " RMSE", "Month", r"$\frac{Watts}{Meter^2}$", 0.29, 0.155, rmse_plot_filename)
