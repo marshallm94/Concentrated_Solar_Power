@@ -9,7 +9,8 @@
 5. [Feature Engineering](#feature-engineering)
 6. [Modeling](#modeling)
     + [Results](#results)
-7. [Next Steps](#next-steps)
+7. [Going Further](#going-further)
+8. [Next Steps](#next-steps)
 
 ## Background
 
@@ -101,18 +102,20 @@ Both the Random Forest and the MLP were able to beat the Persistence Model with 
 
 ![](images/root_mean_squared_errors.png)
 
-#### Going Further
+## Going Further
 
 One thing I was curious about was whether predicting further into the future would have a drastic shift in the errors, both MAE and RMSE, of the Neural Network.
 
-###### Mean Absolute Errors as Time Increases
+### Mean Absolute Errors as Time Increases
+
+Looking at the below 4 plots, you can see that while there is a slight shift up in the Mean Absolute Errors, it doesn't go up by much. Interestingly, as one would imagine, the persistence model gets progressively worse as I predicted further into the future. This goes to show that there is more to be gained from using my model as DNI is predicted further into the future.
 
 ![](images/t_plus_30_mae_errors.png)
 ![](images/t_plus_60_mae_errors.png)
 ![](images/t_plus_90_mae_errors.png)
 ![](images/t_plus_120_mae_errors.png)
 
-###### Root Mean Squared Errors as Time Increases
+### Root Mean Squared Errors as Time Increases
 
 The same pattern, slight fluctuations in the error rate as DNI is predicted further into the future can be seen with respect to RMSE, and once again, the gap between my model and the benchmark widens as we look further into the future.
 
