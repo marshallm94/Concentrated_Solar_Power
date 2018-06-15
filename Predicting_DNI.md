@@ -132,8 +132,7 @@ The same pattern, slight fluctuations in the error rate as DNI is predicted furt
 
 Acknowledgements:
 
-1. Data Source: [Andreas, A.; Stoffel, T.; (2006). University of Nevada (UNLV):
-Las Vegas, Nevada (Data); NREL Report No. DA-5500-56509.](http://dx.doi.org/10.5439/1052548) (Data downloaded April 14, 2018)
+1. Data Source: [National Solar Radiation Database (NSRDB)](https://nsrdb.nrel.gov/)
 
 2. [A 24-h forecast of solar irradiance using artificial neural network: Application for performance prediction of aa grid-connected PV plant at Triest, Italy.](https://ac-els-cdn-com.www2.lib.ku.edu/S0038092X10000782/1-s2.0-S0038092X10000782-main.pdf?_tid=85616b05-995e-48d0-bfa8-9fd7fae6cf27&acdnat=1523992062_3fc582bfafa044fee8fcabd7275d202b)
 
