@@ -64,8 +64,9 @@ def format_dict_for_plot(lst, key_identifiers):
 
 def results_error_plot(error_dict, model_colors, base_colors, title, xlab, ylab, savefig=False):
     '''
-    Plots multiple error arraysthe errors of two model against each other
-
+    Plots the error arrays of two models against each other with the x-axis
+    ticks being months of the year.
+    
     Parameters:
     ----------
     error_dict : (dict)
@@ -88,7 +89,6 @@ def results_error_plot(error_dict, model_colors, base_colors, title, xlab, ylab,
         If False default, image will be displayed and not saved. If the
         user would like the image saved, pass the filepath as string to
         which the image should be saved.
-
     Returns:
     ----------
     None
